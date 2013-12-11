@@ -27,12 +27,6 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 `user`: The DB user of influxDB, should be created manually, default to "root"
 
 `password`: The password of the user, default to "root"
-
-`value_field`: The original data field in fluentd, default to "_value".
-
-    If you have a fluentd time-series schema like this:
-    my.metric.name 1386000000 {"k1":"v1","k2":"v2","count":2.3}
-    And apparently the field "count" is the value field, you should set it to "count"
     
 `time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
 
@@ -49,7 +43,6 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
   dbname test
   user  testuser
   password  mypwd
-  value_field count
   time_precision s
 </match>
 ```

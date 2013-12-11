@@ -10,7 +10,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :dbname, :string,  :default => 'fluentd'
   config_param :user, :string,  :default => 'root'
   config_param :password, :string,  :default => 'root'
-  config_param :value_field, :string, :default => '_value'
   config_param :time_precision, :string, :default => 's'
 
 
@@ -38,14 +37,10 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     bulk = []
 
     chunk.msgpack_each do |tag, time, record|
-
-      value = record[@value_field]
-      record.delete(@value_field)
-
       bulk << {
         'name' => tag,
-        'columns' => ['time', 'value'].concat(record.keys),
-        'points' => [[time, value].concat(record.values)],
+        'columns' => record.keys << 'time',
+        'points' => [record.values << time],
       }
     end
 
