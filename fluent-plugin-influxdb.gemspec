@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.authors       = ["FangLi"]
   s.email         = ["surivlee@gmail.com"]
   s.description   = %q{InfluxDB output plugin for Fluentd}
-  s.summary       = s.description
+  s.summary       = %q{A buffered output plugin for fluentd and influxDB}
   s.homepage      = "https://github.com/fangli/fluent-plugin-influxdb"
   s.license       = 'MIT'
 
