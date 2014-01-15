@@ -6,7 +6,7 @@ If you are using fluentd as a collector and want to organize your time-series da
 
 ## Installation
 
-    $ gem install fluent-plugin-influxdb
+    $ fluent-gem install fluent-plugin-influxdb
 
 ## Usage
 
