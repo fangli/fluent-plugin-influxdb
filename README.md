@@ -1,4 +1,4 @@
-# Fluent::Plugin::InfluxDB
+# Fluent::Plugin::InfluxDB, a plugin for [Fluentd](http://fluentd.org)
 
 fluent-plugin-influxdb is a buffered output plugin for fluentd and influxDB.
 
