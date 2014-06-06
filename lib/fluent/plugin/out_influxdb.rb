@@ -57,14 +57,25 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
         record_time = tz.utc_to_local(record_time).new_offset(rational_offset) -
           period.utc_total_offset_rational
       end
-      record_time = Time.at(time || record_time) if @include_time_key
-      record[@time_key] = record_time.strftime("%s").to_f if record_time
 
-      # The `time` field type should be a float type
+      if @include_time_key
+        record_time = time
+      elsif record_time
+        # The  field type should be a float type
+        record_time = case @time_precision
+                        #when 'u' # TODO: Implements code.
+                      when 'm'
+                        Proc.new { record_time.strftime("%Q").to_f }.call
+                      else
+                        Proc.new { record_time.strftime("%s").to_f }.call
+                      end
+      end
+      record[@time_key] = record_time if record_time
+
       if @time_key == @influx_time_key
         record[@time_key] = time unless record.has_key?(@time_key)
       else
-        record[@include_time_key] = record_time.strftime("%s").to_f if record_time
+        record[@include_time_key] = record_time if record_time
         record[@include_time_key] ||= time
       end
 
