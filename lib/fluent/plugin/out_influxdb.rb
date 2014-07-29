@@ -37,10 +37,11 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     bulk = []
 
     chunk.msgpack_each do |tag, time, record|
+      record['time'] = time unless record.has_key? 'time'
       bulk << {
         'name' => tag,
-        'columns' => record.keys << 'time',
-        'points' => [record.values << time],
+        'columns' => record.keys,
+        'points' => [record.values],
       }
     end
 
