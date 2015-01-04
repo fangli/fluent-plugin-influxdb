@@ -1,6 +1,6 @@
 # encoding: UTF-8
 require 'date'
-require 'net/http'
+require 'influxdb'
 
 class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   Fluent::Plugin.register_output('influxdb', self)
@@ -19,6 +19,13 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 
   def configure(conf)
     super
+    @influxdb = InfluxDB::Client.new @dbname, host: @host, 
+                                              port: @port, 
+                                              username: @user, 
+                                              password: @password,
+                                              async: false,
+                                              time_precision: @time_precision
+                                              
   end
 
   def start
@@ -34,19 +41,9 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def write(chunk)
-    bulk = []
-
     chunk.msgpack_each do |tag, time, record|
-      bulk << {
-        'name' => tag,
-        'columns' => record.keys << 'time',
-        'points' => [record.values << time],
-      }
+      record[:time] = time
+      @influxdb.write_point(tag, record)
     end
-
-    http = Net::HTTP.new(@host, @port.to_i)
-    request = Net::HTTP::Post.new("/db/#{@dbname}/series?u=#{@user}&p=#{password}&time_precision=#{time_precision}", {'content-type' => 'application/json; charset=utf-8'})
-    request.body = Yajl::Encoder.encode(bulk)
-    http.request(request).value
   end
 end
