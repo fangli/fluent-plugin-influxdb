@@ -42,8 +42,10 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 
   def write(chunk)
     chunk.msgpack_each do |tag, time, record|
-      record[:time] = time
-      @influxdb.write_point(tag, record)
+      unless record.empty?
+        record[:time] = time
+        @influxdb.write_point(tag, record)
+      end
     end
   end
 end
