@@ -27,6 +27,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 `user`: The DB user of influxDB, should be created manually, default to "root"
 
 `password`: The password of the user, default to "root"
+
+`use_ssl`: Use SSL when connecting to influxDB. default to false
     
 `time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
 
@@ -43,6 +45,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
   dbname test
   user  testuser
   password  mypwd
+  use_ssl false
   time_precision s
 </match>
 ```
