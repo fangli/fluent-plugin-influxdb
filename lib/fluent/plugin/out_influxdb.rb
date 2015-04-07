@@ -11,6 +11,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :user, :string,  :default => 'root'
   config_param :password, :string,  :default => 'root'
   config_param :time_precision, :string, :default => 's'
+  config_param :use_ssl, :bool, :default => false
 
 
   def initialize
@@ -24,8 +25,9 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
                                               username: @user, 
                                               password: @password,
                                               async: false,
-                                              time_precision: @time_precision
-                                              
+                                              time_precision: @time_precision,
+                                              use_ssl: @use_ssl
+
   end
 
   def start
