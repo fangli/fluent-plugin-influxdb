@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.4 (Apr 8, 2015)
+=====
+
+- influxdb gem should be runtime dependency
+- Add use_ssl option
+
 0.1.3 (Apr 3, 2015)
 =====
 
