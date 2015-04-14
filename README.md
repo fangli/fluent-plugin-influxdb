@@ -32,10 +32,12 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
     
 `time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
 
+### Fluentd Tag and InfluxDB Series
 
+influxdb plugin uses Fluentd event tag for InfluxDB series.
+So if you have events with `app.event`, influxdb plugin inserts events into `app.event` series in InfluxDB.
 
 ## Configuration Example
-
 
 ```
 <match mylog.*>
