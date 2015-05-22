@@ -27,7 +27,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
                                               async: false,
                                               time_precision: @time_precision,
                                               use_ssl: @use_ssl
-
   end
 
   def start
@@ -35,6 +34,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def format(tag, time, record)
+    # TODO: Use tag based chunk separation for more reliability
     [tag, time, record].to_msgpack
   end
 
@@ -43,11 +43,17 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def write(chunk)
+    points = {}
     chunk.msgpack_each do |tag, time, record|
       unless record.empty?
         record[:time] = time
-        @influxdb.write_point(tag, record)
+        points[tag] ||= []
+        points[tag] << record
       end
     end
+
+    points.each { |tag, records|
+      @influxdb.write_point(tag, records)
+    }
   end
 end
