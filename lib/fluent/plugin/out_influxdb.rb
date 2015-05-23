@@ -41,8 +41,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     [tag, time, record].to_msgpack
   end
 
-
-
   def shutdown
     super
   end
