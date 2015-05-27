@@ -1,9 +1,12 @@
 # encoding: UTF-8
 require 'date'
 require 'influxdb'
+require 'fluent/mixin/mixin'
 
 class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   Fluent::Plugin.register_output('influxdb', self)
+
+  include Fluent::HandleTagNameMixin
 
   config_param :host, :string,  :default => 'localhost'
   config_param :port, :integer,  :default => 8086
@@ -12,7 +15,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :password, :string,  :default => 'root'
   config_param :time_precision, :string, :default => 's'
   config_param :use_ssl, :bool, :default => false
-  config_param :remove_tag_prefix, :string, :default => ''
 
 
   def initialize
@@ -21,7 +23,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 
   def configure(conf)
     super
-    @remove_tag_prefix = conf['remove_tag_prefix']
     @influxdb = InfluxDB::Client.new @dbname, host: @host,
                                               port: @port,
                                               username: @user,
@@ -37,7 +38,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def format(tag, time, record)
-    tag.gsub!(/^#{@remove_tag_prefix}(\.)?/, '') unless @remove_tag_prefix.empty?
     [tag, time, record].to_msgpack
   end
 
