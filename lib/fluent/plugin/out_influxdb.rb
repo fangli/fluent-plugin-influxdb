@@ -1,9 +1,12 @@
 # encoding: UTF-8
 require 'date'
 require 'influxdb'
+require 'fluent/mixin/mixin'
 
 class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   Fluent::Plugin.register_output('influxdb', self)
+
+  include Fluent::HandleTagNameMixin
 
   config_param :host, :string,  :default => 'localhost'
   config_param :port, :integer,  :default => 8086
@@ -20,9 +23,9 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 
   def configure(conf)
     super
-    @influxdb = InfluxDB::Client.new @dbname, host: @host, 
-                                              port: @port, 
-                                              username: @user, 
+    @influxdb = InfluxDB::Client.new @dbname, host: @host,
+                                              port: @port,
+                                              username: @user,
                                               password: @password,
                                               async: false,
                                               time_precision: @time_precision,

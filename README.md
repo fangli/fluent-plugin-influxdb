@@ -29,7 +29,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 `password`: The password of the user, default to "root"
 
 `use_ssl`: Use SSL when connecting to influxDB. default to false
-    
+
 `time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
 
 ### Fluentd Tag and InfluxDB Series
@@ -68,6 +68,17 @@ num_threads 1
 ```
 
 The details of BufferedOutput is [here](http://docs.fluentd.org/articles/buffer-plugin-overview).
+
+---
+
+fluentd-plugin-influxdb also includes the HandleTagNameMixin mixin which allows the following additional options:
+
+```
+remove_tag_prefix <tag_prefix_to_remove_including_the_dot>
+remove_tag_suffix <tag_suffix_to_remove_including_the_dot>
+add_tag_prefix <tag_prefix_to_add_including_the_dot>
+add_tag_suffix <tag_suffix_to_add_including_the_dot>
+```
 
 ---
 
