@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.5 (May 29, 2015)
+=====
+
+- Improve write performance
+- Add the ability to handle a tag
+
 0.1.4 (Apr 8, 2015)
 =====
 
