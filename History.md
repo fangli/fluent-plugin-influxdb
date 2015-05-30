@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.6 (May 30, 2015)
+=====
+
+- Fix wrong require
+
 0.1.5 (May 29, 2015)
 =====
 
