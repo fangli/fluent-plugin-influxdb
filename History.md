@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.7 (Jun, 9, 2015)
+=====
+
+- Keep original time field if present
+
 0.1.6 (May 30, 2015)
 =====
 
