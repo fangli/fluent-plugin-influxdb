@@ -48,7 +48,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     points = {}
     chunk.msgpack_each do |tag, time, record|
       unless record.empty?
-        record[:time] = time
+        record[:time] = time unless record.has_key?('time')
         points[tag] ||= []
         points[tag] << record
       end
