@@ -11,7 +11,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :port, :integer,  :default => 8086
   config_param :dbname, :string,  :default => 'fluentd'
   config_param :user, :string,  :default => 'root'
-  config_param :password, :string,  :default => 'root'
+  config_param :password, :string,  :default => 'root', :secret => true
   config_param :time_precision, :string, :default => 's'
   config_param :use_ssl, :bool, :default => false
 
