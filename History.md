@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.8 (July, 12, 2015)
+=====
+
+- Force to use influxdb gem v0.1.x
+
 0.1.7 (Jun, 9, 2015)
 =====
 
