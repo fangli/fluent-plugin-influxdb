@@ -11,7 +11,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :port, :integer,  :default => 8086
   config_param :dbname, :string,  :default => 'fluentd'
   config_param :user, :string,  :default => 'root'
-  config_param :password, :string,  :default => 'root'
+  config_param :password, :string,  :default => 'root', :secret => true
   config_param :time_precision, :string, :default => 's'
   config_param :use_ssl, :bool, :default => false
 
@@ -29,7 +29,6 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
                                               async: false,
                                               time_precision: @time_precision,
                                               use_ssl: @use_ssl
-
   end
 
   def start
@@ -37,6 +36,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def format(tag, time, record)
+    # TODO: Use tag based chunk separation for more reliability
     [tag, time, record].to_msgpack
   end
 
@@ -45,11 +45,17 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def write(chunk)
+    points = {}
     chunk.msgpack_each do |tag, time, record|
       unless record.empty?
-        record[:time] = time
-        @influxdb.write_point(tag, record)
+        record[:time] = time unless record.has_key?('time')
+        points[tag] ||= []
+        points[tag] << record
       end
     end
+
+    points.each { |tag, records|
+      @influxdb.write_point(tag, records)
+    }
   end
 end

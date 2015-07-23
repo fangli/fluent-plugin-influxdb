@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name          = "fluent-plugin-influxdb"
-  s.version       = '0.1.4'
+  s.version       = '0.1.8'
   s.authors       = ["Masahiro Nakagawa", "FangLi"]
   s.email         = ["repeatedly@gmail.com", "surivlee@gmail.com"]
   s.description   = %q{InfluxDB output plugin for Fluentd}
@@ -16,8 +16,10 @@ Gem::Specification.new do |s|
   s.test_files    = s.files.grep(%r{^(test|spec|features)/})
   s.require_paths = ["lib"]
 
-  s.add_runtime_dependency "fluentd"
-  s.add_runtime_dependency "influxdb"
+  s.add_runtime_dependency "fluentd", [">= 0.10.49", "< 2"]
+  s.add_runtime_dependency "influxdb", "~> 0.1.8"
 
   s.add_development_dependency "rake"
+  s.add_development_dependency "pry"
+  s.add_development_dependency "test-unit"
 end
