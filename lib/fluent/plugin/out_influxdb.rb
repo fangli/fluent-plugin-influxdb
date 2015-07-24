@@ -55,7 +55,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     end
 
     points.each { |tag, records|
-      @influxdb.write_point(tag, records)
+      @influxdb.write_points(tag, records)
     }
   end
 end
