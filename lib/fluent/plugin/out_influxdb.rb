@@ -45,17 +45,17 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   end
 
   def write(chunk)
-    points = {}
+    points = []
     chunk.msgpack_each do |tag, time, record|
       unless record.empty?
-        record[:time] = time unless record.has_key?('time')
-        points[tag] ||= []
-        points[tag] << record
+        point = {}
+        point[:timestamp] = record.delete('time') || time
+        point[:series] = tag
+        point[:values] = record
+        points << point
       end
     end
 
-    points.each { |tag, records|
-      @influxdb.write_point(tag, records)
-    }
+    @influxdb.write_points(points)
   end
 end
