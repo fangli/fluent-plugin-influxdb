@@ -4,6 +4,11 @@ fluent-plugin-influxdb is a buffered output plugin for fluentd and influxDB.
 
 If you are using fluentd as a collector and want to organize your time-series data in influxDB, this is your right choice!
 
+## NOTE
+
+This version uses influxdb-ruby version 0.2.0 which no longer supports InfluxDB version 0.8 (which is also deprecated).
+If you are using InfluxDB version 0.8 please specify version 0.1.8 of this plugin.
+
 ## Installation
 
     $ fluent-gem install fluent-plugin-influxdb
