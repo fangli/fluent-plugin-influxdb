@@ -14,9 +14,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :password, :string,  :default => 'root', :secret => true
   config_param :time_precision, :string, :default => 's'
   config_param :use_ssl, :bool, :default => false
-  config_param :tag_keys, :default => [] do |val|
-    val.split(',')
-  end
+  config_param :tag_keys, :array, :default => []
 
 
   def initialize

@@ -37,7 +37,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
 
-`tag_keys`: The names of the keys to use as influxDB tags. Please also specify the comma-separated keys parameter.
+`tag_keys`: The names of the keys to use as influxDB tags.
 
 ### Fluentd Tag and InfluxDB Series
 
@@ -56,6 +56,7 @@ So if you have events with `app.event`, influxdb plugin inserts events into `app
   password  mypwd
   use_ssl false
   time_precision s
+  tag_keys ['key1', 'key2']
 </match>
 ```
 
