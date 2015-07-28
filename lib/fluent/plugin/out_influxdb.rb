@@ -14,6 +14,9 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :password, :string,  :default => 'root', :secret => true
   config_param :time_precision, :string, :default => 's'
   config_param :use_ssl, :bool, :default => false
+  config_param :tag_keys, :default => [] do |val|
+    val.split(',')
+  end
 
 
   def initialize
@@ -51,7 +54,8 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
         point = {}
         point[:timestamp] = record.delete('time') || time
         point[:series] = tag
-        point[:values] = record
+        point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
+        point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
         points << point
       end
     end

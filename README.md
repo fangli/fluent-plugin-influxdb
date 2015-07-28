@@ -37,6 +37,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
 
+`tag_keys`: The names of the keys to use as influxDB tags. Please also specify the comma-separated keys parameter.
+
 ### Fluentd Tag and InfluxDB Series
 
 influxdb plugin uses Fluentd event tag for InfluxDB series.
