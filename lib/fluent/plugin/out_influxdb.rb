@@ -52,8 +52,12 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
         point = {}
         point[:timestamp] = record.delete('time') || time
         point[:series] = tag
-        point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
-        point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
+        if tag_keys.empty?
+          point[:values] = record
+        else
+          point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
+          point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
+        end
         points << point
       end
     end
