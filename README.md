@@ -47,11 +47,12 @@ So if you have events with `app.event`, influxdb plugin inserts events into `app
 ```
 <match mylog.*>
   type influxdb
-  host  localhost
-  port  8086
-  dbname test
-  user  testuser
-  password  mypwd
+  host  ${tag[0]}
+  port  ${port}
+  dbname ${database}
+  user  ${user}
+  password  ${password}
+  remove_keys database,user,password
   use_ssl false
   time_precision s
 </match>
