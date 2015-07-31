@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.1 (July, 31, 2015)
+=====
+
+- Add tag_keys parameter to support influxdb tags
+
 0.2.0 (July, 27, 2015)
 =====
 
