@@ -91,7 +91,9 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
       end
     end
     data.each do |key, points|
-      @influxdb[key].write_points(points)
+      if @influxdb.has_key?(key)
+        @influxdb[key].write_points(points)
+      end
     end
   end
 
@@ -99,13 +101,15 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     db = "#{opts['host']}:#{opts['port']}|#{opts['dbname']}|#{opts['username']}|#{opts['password']}"
     @influxdb = {} unless @influxdb
     unless @influxdb.has_key?(db)
-      @influxdb[db] = InfluxDB::Client.new opts['dbname'], host: opts['host'],
-                                                           port: opts['port'],
-                                                           username: opts['user'],
-                                                           password: opts['password'],
-                                                           async: false,
-                                                           time_precision: @time_precision,
-                                                           use_ssl: @use_ssl
+      unless opts['dbname'].empty?
+        @influxdb[db] = InfluxDB::Client.new opts['dbname'], host: opts['host'],
+                                                             port: opts['port'],
+                                                             username: opts['username'],
+                                                             password: opts['password'],
+                                                             async: false,
+                                                             time_precision: @time_precision,
+                                                             use_ssl: @use_ssl
+      end
     end
     return db
   end
