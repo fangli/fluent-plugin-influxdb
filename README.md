@@ -56,7 +56,7 @@ So if you have events with `app.event`, influxdb plugin inserts events into `app
   password  mypwd
   use_ssl false
   time_precision s
-  tag_keys ['key1', 'key2']
+  tag_keys ["key1", "key2"]
 </match>
 ```
 
