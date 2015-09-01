@@ -92,8 +92,22 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     end
     data.each do |key, points|
       if @influxdb.has_key?(key)
-        @influxdb[key].write_points(points)
+        send_data(key, points);
       end
+    end
+  end
+
+  def send_data(key, points, trys = 2)
+    if trys >= 0
+      begin
+        @influxdb[key].write_points(points)
+      rescue => e
+        log.warn "InfluxDB: temporarily failed to flush the buffer.", "#{trys} more retrys", :error_class=>e.class.to_s, :error=>e.to_s
+        sleep(5)
+        send_data(key, points, trys - 1)
+      end
+    else
+      log.warn "InfluxDB: Failed forever to flush the buffer.", "No more retrys", :error_class=>e.class.to_s, :error=>e.to_s
     end
   end
 
