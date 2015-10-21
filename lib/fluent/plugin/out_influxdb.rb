@@ -48,7 +48,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   def write(chunk)
     points = []
     chunk.msgpack_each do |tag, time, record|
-      unless record.empty?
+      unless record.empty? or record.has_value?(nil)
         point = {}
         point[:timestamp] = record.delete('time') || time
         point[:series] = tag
