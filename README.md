@@ -35,7 +35,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `use_ssl`: Use SSL when connecting to influxDB. default to false
 
-`time_precision`: The time precision of timestamp. default to "s". should specify either second (s), millisecond (m), or microsecond (u)
+`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (n)
 
 `tag_keys`: The names of the keys to use as influxDB tags.
 
