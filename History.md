@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.2 (Nov, 02, 2015)
+=====
+
+- Ignore event when field has null
+
 0.2.1 (July, 31, 2015)
 =====
 
