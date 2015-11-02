@@ -36,9 +36,15 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
     super
   end
 
+  FORMATTED_RESULT_FOR_INVALID_RECORD = ''.freeze
+
   def format(tag, time, record)
     # TODO: Use tag based chunk separation for more reliability
-    [tag, time, record].to_msgpack
+    if record.empty? || record.has_value?(nil)
+      FORMATTED_RESULT_FOR_INVALID_RECORD
+    else
+      [tag, time, record].to_msgpack
+    end
   end
 
   def shutdown
@@ -48,18 +54,16 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   def write(chunk)
     points = []
     chunk.msgpack_each do |tag, time, record|
-      unless record.empty? or record.has_value?(nil)
-        point = {}
-        point[:timestamp] = record.delete('time') || time
-        point[:series] = tag
-        if tag_keys.empty?
-          point[:values] = record
-        else
-          point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
-          point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
-        end
-        points << point
+      point = {}
+      point[:timestamp] = record.delete('time') || time
+      point[:series] = tag
+      if tag_keys.empty?
+        point[:values] = record
+      else
+        point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
+        point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
       end
+      points << point
     end
 
     @influxdb.write_points(points)
