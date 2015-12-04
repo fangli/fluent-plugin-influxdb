@@ -60,8 +60,8 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
       if tag_keys.empty?
         point[:values] = record
       else
-        point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
-        point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
+        point[:tags] = record.select{|k,v| @tag_keys.include?(k) && !v.empty?}
+        point[:values] = record.select{|k,v| !@tag_keys.include?(k) && !v.empty?}
       end
       points << point
     end
