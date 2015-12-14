@@ -15,10 +15,13 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   config_param :time_precision, :string, :default => 's'
   config_param :use_ssl, :bool, :default => false
   config_param :tag_keys, :array, :default => []
+  config_param :sequence_tag, :string, :default => nil
 
 
   def initialize
     super
+    @seq = 0
+    @prev_timestamp = nil
   end
 
   def configure(conf)
@@ -54,15 +57,36 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   def write(chunk)
     points = []
     chunk.msgpack_each do |tag, time, record|
-      point = {}
-      point[:timestamp] = record.delete('time') || time
-      point[:series] = tag
+      timestamp = record.delete('time') || time
       if tag_keys.empty?
-        point[:values] = record
+        values = record
+        tags = {}
       else
-        point[:tags] = record.select{|k,v| @tag_keys.include?(k)}
-        point[:values] = record.select{|k,v| !@tag_keys.include?(k)}
+        values = {}
+        tags = {}
+        record.each_pair do |k, v|
+          if @tag_keys.include?(k)
+            tags[k] = v
+          else
+            values[k] = v
+          end
+        end
       end
+      if @sequence_tag
+        if @prev_timestamp == timestamp
+          @seq += 1
+        else
+          @seq = 0
+        end
+        tags[@sequence_tag] = @seq
+        @prev_timestamp = timestamp
+      end
+      point = {
+        :timestamp => timestamp,
+        :series    => tag,
+        :values    => values,
+        :tags      => tags,
+      }
       points << point
     end
 
