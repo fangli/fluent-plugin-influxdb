@@ -1,5 +1,18 @@
 require 'helper'
+
 class InfluxdbOutputTest < Test::Unit::TestCase
+  class DummyInfluxDBClient
+    attr_reader :points
+
+    def initialize
+      @points = []
+    end
+
+    def write_points(points)
+      @points += points
+    end
+  end
+
   def setup
     Fluent::Test.setup
   end
@@ -21,8 +34,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
   def create_driver(conf=CONFIG, tag='test')
     Fluent::Test::BufferedOutputTestDriver.new(Fluent::InfluxdbOutput, tag) do
-      def write(chunk)
-        chunk.read
+      attr_reader :influxdb
+      def configure(conf)
+        super
+        @influxdb = DummyInfluxDBClient.new()
       end
     end.configure(conf)
   end
@@ -60,7 +75,71 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
     data = driver.run
 
-    assert_equal(['input.influxdb', time, {'a' => 1}].to_msgpack +
-                 ['input.influxdb', time, {'a' => 2}].to_msgpack, data)
+    assert_equal([
+      {
+        :timestamp => time,
+        :series    => 'input.influxdb',
+        :values    => {'a' => 1},
+        :tags      => {},
+      },
+      {
+        :timestamp => time,
+        :series    => 'input.influxdb',
+        :values    => {'a' => 2},
+        :tags      => {},
+      }
+    ], driver.instance.influxdb.points)
+
+  end
+
+  def test_seq
+    config = %[
+      type influxdb
+      host  localhost
+      port  8086
+      dbname test
+      user  testuser
+      password  mypwd
+      use_ssl false
+      time_precision s 
+      sequence_tag _seq
+    ]
+    driver = create_driver(config, 'input.influxdb')
+
+    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    driver.emit({'a' => 1}, time)
+    driver.emit({'a' => 2}, time)
+
+    driver.emit({'a' => 1}, time + 1)
+    driver.emit({'a' => 2}, time + 1)
+
+    data = driver.run
+
+    assert_equal([
+      {
+        :timestamp => time,
+        :series    => 'input.influxdb',
+        :values    => {'a' => 1},
+        :tags      => {'_seq' => 0},
+      },
+      {
+        :timestamp => time,
+        :series    => 'input.influxdb',
+        :values    => {'a' => 2},
+        :tags      => {'_seq' => 1},
+      },
+      {
+        :timestamp => time + 1,
+        :series    => 'input.influxdb',
+        :values    => {'a' => 1},
+        :tags      => {'_seq' => 0},
+      },
+      {
+        :timestamp => time + 1,
+        :series    => 'input.influxdb',
+        :values    => {'a' => 2},
+        :tags      => {'_seq' => 1},
+      }
+    ], driver.instance.influxdb.points)
   end
 end

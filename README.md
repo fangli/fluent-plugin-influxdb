@@ -39,6 +39,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `tag_keys`: The names of the keys to use as influxDB tags.
 
+`sequence_tag`: The name of the tag whose value is incremented for the consecutive simultaneous events and reset to zero for a new event with the different timestamp
+
 ### Fluentd Tag and InfluxDB Series
 
 influxdb plugin uses Fluentd event tag for InfluxDB series.
@@ -57,6 +59,7 @@ So if you have events with `app.event`, influxdb plugin inserts events into `app
   use_ssl false
   time_precision s
   tag_keys ["key1", "key2"]
+  sequence_tag _seq
 </match>
 ```
 
