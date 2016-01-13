@@ -7,15 +7,34 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 
   include Fluent::HandleTagNameMixin
 
-  config_param :host, :string,  :default => 'localhost'
-  config_param :port, :integer,  :default => 8086
-  config_param :dbname, :string,  :default => 'fluentd'
-  config_param :user, :string,  :default => 'root'
-  config_param :password, :string,  :default => 'root', :secret => true
-  config_param :time_precision, :string, :default => 's'
-  config_param :use_ssl, :bool, :default => false
-  config_param :tag_keys, :array, :default => []
-  config_param :sequence_tag, :string, :default => nil
+  config_param :host, :string,  :default => 'localhost',
+               :desc => "The IP or domain of influxDB."
+  config_param :port, :integer,  :default => 8086,
+               :desc => "The HTTP port of influxDB."
+  config_param :dbname, :string,  :default => 'fluentd',
+               :desc => <<-DESC
+The database name of influxDB.
+You should create the database and grant permissions at first.
+DESC
+  config_param :user, :string,  :default => 'root',
+               :desc => "The DB user of influxDB, should be created manually."
+  config_param :password, :string,  :default => 'root', :secret => true,
+               :desc => "The password of the user."
+  config_param :time_precision, :string, :default => 's',
+               :desc => <<-DESC
+The time precision of timestamp.
+You should specify either hour (h), minutes (m), second (s),
+millisecond (ms), microsecond (u), or nanosecond (n).
+DESC
+  config_param :use_ssl, :bool, :default => false,
+               :desc => "Use SSL when connecting to influxDB."
+  config_param :tag_keys, :array, :default => [],
+               :desc => "The names of the keys to use as influxDB tags."
+  config_param :sequence_tag, :string, :default => nil,
+               :desc => <<-DESC
+The name of the tag whose value is incremented for the consecutive simultaneous
+events and reset to zero for a new event with the different timestamp.
+DESC
 
 
   def initialize
