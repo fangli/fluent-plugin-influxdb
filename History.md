@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2.3 (Feb, 27, 2016)
+=====
+
+- Add sequence_tag option
+- Add parameter descriptions
+
 0.2.2 (Nov, 02, 2015)
 =====
 
