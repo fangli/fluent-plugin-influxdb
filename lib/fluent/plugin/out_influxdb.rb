@@ -28,6 +28,8 @@ millisecond (ms), microsecond (u), or nanosecond (n).
 DESC
   config_param :use_ssl, :bool, :default => false,
                :desc => "Use SSL when connecting to influxDB."
+  config_param :verify_ssl, :bool, :default => true,
+               :desc => "Enable/Disable SSL Certs verification when connecting to influxDB via SSL."
   config_param :tag_keys, :array, :default => [],
                :desc => "The names of the keys to use as influxDB tags."
   config_param :sequence_tag, :string, :default => nil,
@@ -51,7 +53,8 @@ DESC
                                               password: @password,
                                               async: false,
                                               time_precision: @time_precision,
-                                              use_ssl: @use_ssl
+                                              use_ssl: @use_ssl,
+                                              verify_ssl: @verify_ssl
   end
 
   def start
