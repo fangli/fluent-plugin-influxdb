@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.4 (Apr, 11, 2016)
+=====
+
+- Add verify_ssl option
+
 0.2.3 (Feb, 27, 2016)
 =====
 
