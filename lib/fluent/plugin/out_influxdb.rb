@@ -60,7 +60,7 @@ DESC
     if existing_databases.include? @dbname
         $log.info 'Dababase ' + @dbname + ' exists'
     else
-        raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existed.join(",")
+        raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(",")
     end
     
   end
