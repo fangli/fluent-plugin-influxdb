@@ -55,6 +55,14 @@ DESC
                                               time_precision: @time_precision,
                                               use_ssl: @use_ssl,
                                               verify_ssl: @verify_ssl
+    
+    existing_databases = @influxdb.list_databases.map { |x| x['name'] }
+    if existing_databases.include? @dbname
+        $log.info 'Dababase ' + @dbname + ' exists'
+    else
+        raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existed.join(",")
+    end
+    
   end
 
   def start
