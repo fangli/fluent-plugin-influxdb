@@ -55,6 +55,24 @@ DESC
                                               time_precision: @time_precision,
                                               use_ssl: @use_ssl,
                                               verify_ssl: @verify_ssl
+
+    $log.info "Connecting to database: #{@dbname}, host: #{@host}, port: #{@port}, username: #{@user}, password = #{@password}, use_ssl = #{@use_ssl}, verify_ssl = #{@verify_ssl}"
+
+    @influxdb = InfluxDB::Client.new @dbname, host: @host,
+                                     port: @port,
+                                     username: @user,
+                                     password: @password,
+                                     async: false,
+                                     time_precision: @time_precision,
+                                     use_ssl: @use_ssl,
+                                     verify_ssl: @verify_ssl
+
+    existing_databases = @influxdb.list_databases.map { |x| x['name'] }
+
+    unless existing_databases.include? @dbname
+      raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',')
+    end
+
   end
 
   def start
