@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2.5 (Apr, 19, 2016)
+=====
+
+- Ignore blank tag value
+- Improve the configuration verificaiton
+
 0.2.4 (Apr, 11, 2016)
 =====
 
