@@ -8,6 +8,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       @points = []
     end
 
+    def list_databases
+      [{'name' => 'test'}]
+    end
+
     def write_points(points)
       @points += points
     end
@@ -35,9 +39,9 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   def create_driver(conf=CONFIG, tag='test')
     Fluent::Test::BufferedOutputTestDriver.new(Fluent::InfluxdbOutput, tag) do
       attr_reader :influxdb
-      def configure(conf)
-        super
+      def start
         @influxdb = DummyInfluxDBClient.new()
+        super
       end
     end.configure(conf)
   end
