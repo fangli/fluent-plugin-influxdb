@@ -88,7 +88,10 @@ DESC
         tags = {}
         record.each_pair do |k, v|
           if @tag_keys.include?(k)
-            tags[k] = v
+            # If the tag value is not nil, empty, or a space, add the tag
+            if v.to_s.strip != ''
+              tags[k] = v
+            end
           else
             values[k] = v
           end
