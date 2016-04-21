@@ -20,6 +20,8 @@ DESC
                :desc => "The DB user of influxDB, should be created manually."
   config_param :password, :string,  :default => 'root', :secret => true,
                :desc => "The password of the user."
+  config_param :timestamp_tag, :string, :default => 'time',
+               :desc => 'Use value of this tag if it exists in event instead of event timestamp'
   config_param :time_precision, :string, :default => 's',
                :desc => <<-DESC
 The time precision of timestamp.
@@ -88,7 +90,7 @@ DESC
   def write(chunk)
     points = []
     chunk.msgpack_each do |tag, time, record|
-      timestamp = record.delete('time') || time
+      timestamp = record.delete(@timestamp_tag).to_i || time
       if tag_keys.empty?
         values = record
         tags = {}
