@@ -92,6 +92,7 @@ DESC
 
   def shutdown
     super
+    @influxdb.stop!
   end
 
   def write(chunk)

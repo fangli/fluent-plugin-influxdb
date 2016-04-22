@@ -15,6 +15,9 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     def write_points(points)
       @points += points
     end
+
+    def stop!
+    end
   end
 
   def setup
