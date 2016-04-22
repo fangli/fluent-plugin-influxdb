@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.2.6 (Apr, 22, 2016)
+=====
+
+- Add time_key parameter
+- Add retry parameter
+- Skip database check when user doesn't have right permission
+
 0.2.5 (Apr, 19, 2016)
 =====
 
