@@ -20,6 +20,8 @@ DESC
                :desc => "The DB user of influxDB, should be created manually."
   config_param :password, :string,  :default => 'root', :secret => true,
                :desc => "The password of the user."
+  config_param :retry, :integer, :default => nil,
+               :desc => 'The finite number of retry times. default is infinite'
   config_param :time_key, :string, :default => 'time',
                :desc => 'Use value of this tag if it exists in event instead of event timestamp'
   config_param :time_precision, :string, :default => 's',
@@ -62,6 +64,7 @@ DESC
                                                 username: @user,
                                                 password: @password,
                                                 async: false,
+                                                retry: @retry,
                                                 time_precision: @time_precision,
                                                 use_ssl: @use_ssl,
                                                 verify_ssl: @verify_ssl
@@ -89,6 +92,7 @@ DESC
 
   def shutdown
     super
+    @influxdb.stop!
   end
 
   def write(chunk)
