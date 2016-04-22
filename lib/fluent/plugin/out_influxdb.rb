@@ -54,7 +54,7 @@ DESC
   def start
     super
 
-    $log.info "Connecting to database: #{@dbname}, host: #{@host}, port: #{@port}, username: #{@user}, password = #{@password}, use_ssl = #{@use_ssl}, verify_ssl = #{@verify_ssl}"
+    $log.info "Connecting to database: #{@dbname}, host: #{@host}, port: #{@port}, username: #{@user}, use_ssl = #{@use_ssl}, verify_ssl = #{@verify_ssl}"
 
     # ||= for testing.
     @influxdb ||= InfluxDB::Client.new @dbname, host: @host,
