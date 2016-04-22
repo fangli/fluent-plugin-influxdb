@@ -98,7 +98,7 @@ DESC
   def write(chunk)
     points = []
     chunk.msgpack_each do |tag, time, record|
-      timestamp = record.delete(@time_key).to_i || time
+      timestamp = record.delete(@time_key) || time
       if tag_keys.empty?
         values = record
         tags = {}
