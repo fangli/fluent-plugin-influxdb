@@ -307,6 +307,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
     driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
+    driver.emit({'a' => 4}, time)
 
     data = driver.run
 
@@ -340,6 +341,18 @@ class InfluxdbOutputTest < Test::Unit::TestCase
         ],
         nil,
         'ephemeral_1m'
+      ],
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 4},
+          }
+        ],
+        nil,
+        'ephemeral_1d'
       ]
     ], driver.instance.influxdb.points)
 

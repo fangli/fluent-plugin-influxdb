@@ -135,11 +135,11 @@ DESC
         :values    => values,
         :tags      => tags,
       }
-      retention_policy = nil
+      retention_policy = @default_retention_policy
       unless @retention_policy_key.nil?
-        retention_policy = record.delete(@retention_policy_key)
+        retention_policy = record.delete(@retention_policy_key) || @default_retention_policy
         unless points.nil?
-          if !retention_policy.nil? && retention_policy != @default_retention_policy
+          if retention_policy != @default_retention_policy
             # flush the retention policy first
             @influxdb.write_points(points, nil, @default_retention_policy)
             points = nil
