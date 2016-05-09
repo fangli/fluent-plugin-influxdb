@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.7 (May, 10, 2016)
+=====
+
+- Add default_retention_policy and retention_policy parameters
+
 0.2.6 (Apr, 22, 2016)
 =====
 
