@@ -56,7 +56,7 @@ So if you have events with `app.event`, influxdb plugin inserts events into `app
 
 ```
 <match mylog.*>
-  type influxdb
+  @type influxdb
   host  localhost
   port  8086
   dbname test
