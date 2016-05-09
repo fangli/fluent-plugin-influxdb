@@ -41,6 +41,10 @@ DESC
 The name of the tag whose value is incremented for the consecutive simultaneous
 events and reset to zero for a new event with the different timestamp.
 DESC
+  config_param :retention_policy_key, :string, :default => nil,
+               :desc => "The key of the key in the record that stores the retention policy name"
+  config_param :default_retention_policy, :string, :default => nil,
+               :desc => "The name of the default retention policy"
 
 
   def initialize
@@ -131,9 +135,30 @@ DESC
         :values    => values,
         :tags      => tags,
       }
-      points << point
+      retention_policy = @default_retention_policy
+      unless @retention_policy_key.nil?
+        retention_policy = record.delete(@retention_policy_key) || @default_retention_policy
+        unless points.nil?
+          if retention_policy != @default_retention_policy
+            # flush the retention policy first
+            @influxdb.write_points(points, nil, @default_retention_policy)
+            points = nil
+          end
+        end
+      end
+      if points.nil?
+        @influxdb.write_points([point], nil, retention_policy)
+      else
+        points << point
+      end
     end
 
-    @influxdb.write_points(points)
+    unless points.nil?
+      if @default_retention_policy.nil?
+        @influxdb.write_points(points)
+      else
+        @influxdb.write_points(points, nil, @default_retention_policy)
+      end
+    end
   end
 end

@@ -43,6 +43,10 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `sequence_tag`: The name of the tag whose value is incremented for the consecutive simultaneous events and reset to zero for a new event with the different timestamp
 
+`default_retention_policy`: The retention policy applied by default.  influxdb >= 0.2.3 is required to use this functionality.
+
+`retention_policy_key`: The name of the key in the record whose value specifies the retention policy.  The default retention policy will be applied if no such key exists.  influxdb >= 0.2.3 is required to use this functionality.
+
 ### Fluentd Tag and InfluxDB Series
 
 influxdb plugin uses Fluentd event tag for InfluxDB series.
