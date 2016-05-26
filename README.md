@@ -13,6 +13,14 @@ If you are using InfluxDB version 0.8 please specify version 0.1.8 of this plugi
 
     $ fluent-gem install fluent-plugin-influxdb
 
+### Ruby 2.0 or earlier
+
+`influxdb` gem requires `cause` gem in Ruby 2.0 or earlier. If you want to use `fluent-plugin-influxdb` with Ruby 2.0 or earlier,
+you should install `cause` gem before install `fluent-plugin-influxdb`.
+
+We don't recommend to use Ruby 2.0 or earlier version because these are EOL.
+If you don't have a problem, use ruby 2.1 or later in production.
+
 ## Usage
 
 Just like other regular output plugins, Use type `influxdb` in your fluentd configuration under `match` scope:
