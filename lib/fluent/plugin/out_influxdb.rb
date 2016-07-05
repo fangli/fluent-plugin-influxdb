@@ -1,6 +1,7 @@
 # encoding: UTF-8
 require 'date'
 require 'influxdb'
+require 'fluent/output'
 require 'fluent/mixin'
 
 class Fluent::InfluxdbOutput < Fluent::BufferedOutput
