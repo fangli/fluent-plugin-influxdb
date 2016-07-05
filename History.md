@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.8 (July, 06, 2016)
+=====
+
+- Accept comma-separated multiple hosts in host parameter
+
 0.2.7 (May, 10, 2016)
 =====
 
