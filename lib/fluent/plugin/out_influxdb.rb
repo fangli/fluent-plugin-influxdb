@@ -9,7 +9,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
   include Fluent::HandleTagNameMixin
 
   config_param :host, :string,  :default => 'localhost',
-               :desc => "The IP or domain of influxDB."
+               :desc => "The IP or domain of influxDB, separate with comma."
   config_param :port, :integer,  :default => 8086,
                :desc => "The HTTP port of influxDB."
   config_param :dbname, :string,  :default => 'fluentd',
@@ -64,7 +64,7 @@ DESC
     $log.info "Connecting to database: #{@dbname}, host: #{@host}, port: #{@port}, username: #{@user}, use_ssl = #{@use_ssl}, verify_ssl = #{@verify_ssl}"
 
     # ||= for testing.
-    @influxdb ||= InfluxDB::Client.new @dbname, host: @host,
+    @influxdb ||= InfluxDB::Client.new @dbname, hosts: @host.split(','),
                                                 port: @port,
                                                 username: @user,
                                                 password: @password,

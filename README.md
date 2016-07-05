@@ -31,7 +31,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 **Options:**
 
-`host`: The IP or domain of influxDB, default to "localhost"
+`host`: The IP or domain of influxDB, separate with comma, default to "localhost"
 
 `port`: The HTTP port of influxDB, default to 8086
 
