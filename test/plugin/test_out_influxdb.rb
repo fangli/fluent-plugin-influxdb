@@ -149,6 +149,50 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ], driver.instance.influxdb.points)
   end
 
+  def test_auto_tagging
+    config_with_tags = %Q(
+      #{CONFIG}
+
+      auto_tags true
+    )
+
+    driver = create_driver(config_with_tags, 'input.influxdb')
+
+    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    driver.emit({'a' => 1, 'b' => '1'}, time)
+    driver.emit({'a' => 2, 'b' => 1}, time)
+    driver.emit({'a' => 3, 'b' => ' '}, time)
+
+    data = driver.run
+
+    assert_equal([
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 1},
+            :tags      => {'b' => '1'},
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 2, 'b' => 1},
+            :tags      => {},
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 3},
+            :tags      => {},
+          },
+        ],
+        nil,
+        nil
+      ]
+    ], driver.instance.influxdb.points)
+  end  
+
   def test_seq
     config = %[
       type influxdb
