@@ -1,13 +1,15 @@
 # encoding: UTF-8
 require 'date'
 require 'influxdb'
-require 'fluent/output'
+require 'fluent/plugin/output'
 require 'fluent/mixin'
 
-class Fluent::InfluxdbOutput < Fluent::BufferedOutput
+class Fluent::Plugin::InfluxdbOutput < Fluent::Plugin::Output
   Fluent::Plugin.register_output('influxdb', self)
 
-  include Fluent::HandleTagNameMixin
+  helpers :compat_parameters
+
+  DEFAULT_BUFFER_TYPE = "memory"
 
   config_param :host, :string,  :default => 'localhost',
                :desc => "The IP or domain of influxDB, separate with comma."
@@ -52,6 +54,9 @@ DESC
   config_param :default_retention_policy, :string, :default => nil,
                :desc => "The name of the default retention policy"
 
+  config_section :buffer do
+    config_set_default :@type, DEFAULT_BUFFER_TYPE
+  end
 
   def initialize
     super
@@ -60,6 +65,7 @@ DESC
   end
 
   def configure(conf)
+    compat_parameters_convert(conf, :buffer)
     super
     @time_precise = time_precise_lambda()
   end
@@ -108,7 +114,8 @@ DESC
 
   def write(chunk)
     points = []
-    chunk.msgpack_each do |tag, time, record|
+    tag = chunk.metadata.tag
+    chunk.msgpack_each do |time, record|
       timestamp = record.delete(@time_key) || time
       if tag_keys.empty? && !@auto_tags
         values = record
