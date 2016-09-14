@@ -96,17 +96,6 @@ DESC
     end
   end
 
-  FORMATTED_RESULT_FOR_INVALID_RECORD = ''.freeze
-
-  def format(tag, time, record)
-    # TODO: Use tag based chunk separation for more reliability
-    if record.empty? || record.has_value?(nil)
-      FORMATTED_RESULT_FOR_INVALID_RECORD
-    else
-      [tag, precision_time(time), record].to_msgpack
-    end
-  end
-
   def shutdown
     super
     @influxdb.stop!

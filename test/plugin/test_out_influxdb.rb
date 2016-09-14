@@ -27,10 +27,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       super
     end
 
-    def format(tag, time, record)
-      super
-    end
-
     def write(chunk)
       super
     end
@@ -68,23 +64,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     assert_equal('test', driver.instance.config['dbname'])
     assert_equal('testuser', driver.instance.config['user'])
     assert_equal('xxxxxx', driver.instance.config['password'])
-  end
-
-  def test_format
-    driver = create_driver(CONFIG)
-    time = event_time('2011-01-02 13:14:15 UTC')
-
-    formatted = []
-    formatted << driver.instance.format('test', time, {'a' => 1})
-    formatted << driver.instance.format('test', time, {'a' => 2})
-
-    # driver.run(default_tag: 'test') do
-    #   driver.feed(time, {'a' => 1})
-    #   driver.feed(time, {'a' => 2})
-    # end
-
-    assert_equal [['test', time, {'a' => 1}].to_msgpack,
-                  ['test', time, {'a' => 2}].to_msgpack], formatted
   end
 
   def test_write
