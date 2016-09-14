@@ -89,16 +89,16 @@ class InfluxdbOutputTest < Test::Unit::TestCase
         [
           [
             {
-              :timestamp => time,
-              :series    => series,
-              :tags      => {},
-              :values    => {'a' => 1}
+              timestamp: time,
+              series: series,
+              tags: {},
+              values: {'a' => 1}
             },
             {
-              :timestamp => time,
-              :series    => series,
-              :tags      => {},
-              :values    => {'a' => 2}
+              timestamp: time,
+              series: series,
+              tags: {},
+              values: {'a' => 2}
             },
           ],
           nil,
@@ -166,22 +166,22 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 1},
-            :tags      => {},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 1},
+            tags: {},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 2},
-            :tags      => {'b' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 2},
+            tags: {'b' => 1},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 3},
-            :tags      => {},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 3},
+            tags: {},
           },
         ],
         nil,
@@ -298,28 +298,28 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 1},
-            :tags      => {'_seq' => 0},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 1},
+            tags: {'_seq' => 0},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 2},
-            :tags      => {'_seq' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 2},
+            tags: {'_seq' => 1},
           },
           {
-            :timestamp => time2,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 1},
-            :tags      => {'_seq' => 0},
+            timestamp: time + 1,
+            series: 'input.influxdb',
+            values: {'a' => 1},
+            tags: {'_seq' => 0},
           },
           {
-            :timestamp => time2,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 2},
-            :tags      => {'_seq' => 1},
+            timestamp: time + 1,
+            series: 'input.influxdb',
+            values: {'a' => 2},
+            tags: {'_seq' => 1},
           }
         ],
         nil,
@@ -348,16 +348,16 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1}
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 1}
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2}
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 2}
           },
         ],
         nil,
@@ -387,10 +387,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 1},
           }
         ],
         nil,
@@ -399,10 +399,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 2},
           }
         ],
         nil,
@@ -411,10 +411,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 3},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 3},
           }
         ],
         nil,
@@ -446,16 +446,16 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 1},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 2},
           }
         ],
         nil,
@@ -464,10 +464,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 3},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 3},
           }
         ],
         nil,
@@ -476,10 +476,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 4},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 4},
           }
         ],
         nil,
