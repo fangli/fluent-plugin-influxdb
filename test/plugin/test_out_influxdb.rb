@@ -66,39 +66,46 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     assert_equal('xxxxxx', driver.instance.config['password'])
   end
 
-  def test_write
-    driver = create_driver(CONFIG + "\n" + %[
-      <buffer tag>
-        @type memory
-      </buffer>
-    ])
+  sub_test_case "#write" do
+    data("w/ arg" => ["
+           <buffer tag>
+             @type memory
+           </buffer>
+         ",'input.influxdb'],
+        "default" => ["", nil])
+    test "buffer" do |data|
+      buffer_config, series = data
+      driver = create_driver(CONFIG + "\n" + %[
+        #{buffer_config}
+      ])
 
-    time = event_time("2011-01-02 13:14:15 UTC")
-    driver.run(default_tag: 'input.influxdb') do
-      driver.feed(time, {'a' => 1})
-      driver.feed(time, {'a' => 2})
-    end
+      time = event_time("2011-01-02 13:14:15 UTC")
+      driver.run(default_tag: 'input.influxdb') do
+        driver.feed(time, {'a' => 1})
+        driver.feed(time, {'a' => 2})
+      end
 
-    assert_equal([
-      [
+      assert_equal([
         [
-          {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1}
-          },
-          {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2}
-          },
-        ],
-        nil,
-        nil
-      ]
-    ], driver.instance.influxdb.points)
+          [
+            {
+              :timestamp => time,
+              :series    => series,
+              :tags      => {},
+              :values    => {'a' => 1}
+            },
+            {
+              :timestamp => time,
+              :series    => series,
+              :tags      => {},
+              :values    => {'a' => 2}
+            },
+          ],
+          nil,
+          nil
+        ]
+      ], driver.instance.influxdb.points)
+    end
   end
 
   def test_write_with_measurement
