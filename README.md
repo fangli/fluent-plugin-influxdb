@@ -41,9 +41,13 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `password`: The password of the user, default to "root"
 
+`retry`: The finite number of retry times. default is infinite
+
 `use_ssl`: Use SSL when connecting to influxDB. default to false
 
 `verify_ssl`: Enable/Disable SSL Certs verification when connecting to influxDB via SSL. default to true
+
+`time_key`: Use value of this tag if it exists in event instead of event timestamp
 
 `time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (n)
 
