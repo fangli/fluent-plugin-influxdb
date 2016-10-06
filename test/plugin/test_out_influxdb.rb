@@ -67,17 +67,8 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   end
 
   sub_test_case "#write" do
-    data("w/ arg" => ["
-           <buffer tag>
-             @type memory
-           </buffer>
-         ",'input.influxdb'],
-        "default" => ["", nil])
-    test "buffer" do |data|
-      buffer_config, series = data
-      driver = create_driver(CONFIG + "\n" + %[
-        #{buffer_config}
-      ])
+    test "buffer" do
+      driver = create_driver(CONFIG)
 
       time = event_time("2011-01-02 13:14:15 UTC")
       driver.run(default_tag: 'input.influxdb') do
@@ -90,13 +81,13 @@ class InfluxdbOutputTest < Test::Unit::TestCase
           [
             {
               timestamp: time,
-              series: series,
+              series: 'input.influxdb',
               tags: {},
               values: {'a' => 1}
             },
             {
               timestamp: time,
-              series: series,
+              series: 'input.influxdb',
               tags: {},
               values: {'a' => 2}
             },
@@ -148,9 +139,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     config_with_tags = %Q(
       #{CONFIG}
       tag_keys ["b"]
-      <buffer tag>
-        @type memory
-      </buffer>
     )
 
     driver = create_driver(config_with_tags)
@@ -279,9 +267,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       use_ssl false
       time_precision s
       sequence_tag _seq
-      <buffer tag>
-        @type memory
-      </buffer>
     ]
     driver = create_driver(config)
 
@@ -332,9 +317,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   def test_write_default_retention_policy_only
     config = CONFIG + "\n" + %[
       default_retention_policy ephemeral_1d
-      <buffer tag>
-        @type memory
-      </buffer>
     ]
     driver = create_driver(config)
 
@@ -370,9 +352,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   def test_write_respective_retention_policy
     config = CONFIG + "\n" + %[
       retention_policy_key rp
-      <buffer tag>
-        @type memory
-      </buffer>
     ]
     driver = create_driver(config)
 
@@ -428,9 +407,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     config = CONFIG + "\n" + %[
       default_retention_policy ephemeral_1d
       retention_policy_key rp
-      <buffer tag>
-        @type memory
-      </buffer>
     ]
     driver = create_driver(config)
 
