@@ -69,6 +69,7 @@ DESC
     compat_parameters_convert(conf, :buffer)
     super
     @time_precise = time_precise_lambda()
+    raise Fluent::ConfigError, "'tag' in chunk_keys is required." if not @chunk_key_tag
   end
 
   def start

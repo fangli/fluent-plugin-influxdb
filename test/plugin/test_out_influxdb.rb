@@ -66,6 +66,19 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     assert_equal('xxxxxx', driver.instance.config['password'])
   end
 
+  def test_configure_without_tag_chunk_key
+    assert_raise(Fluent::ConfigError) do
+      create_raw_driver %[
+        dbname test
+        user  testuser
+        password  mypwd
+        <buffer arbitrary_key>
+          @type memory
+        </buffer>
+      ]
+    end
+  end
+
   sub_test_case "#write" do
     test "buffer" do
       driver = create_driver(CONFIG)
