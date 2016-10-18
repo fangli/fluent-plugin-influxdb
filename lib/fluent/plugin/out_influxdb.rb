@@ -36,6 +36,8 @@ DESC
                :desc => "Use SSL when connecting to influxDB."
   config_param :verify_ssl, :bool, :default => true,
                :desc => "Enable/Disable SSL Certs verification when connecting to influxDB via SSL."
+  config_param :keys_mapping, :hash, :default => {},
+               :desc => "The names of the keys mapping to map existing tags to those from influxDB."
   config_param :tag_keys, :array, :default => [],
                :desc => "The names of the keys to use as influxDB tags."
   config_param :sequence_tag, :string, :default => nil,
@@ -105,13 +107,14 @@ DESC
     points = []
     chunk.msgpack_each do |tag, time, record|
       timestamp = record.delete(@time_key) || time
-      if tag_keys.empty?
+      if @tag_keys.empty? and @keys_mapping.empty?
         values = record
         tags = {}
       else
         values = {}
         tags = {}
         record.each_pair do |k, v|
+          k = @keys_mapping.fetch(k, k)
           if @tag_keys.include?(k)
             # If the tag value is not nil, empty, or a space, add the tag
             if v.to_s.strip != ''
