@@ -30,7 +30,7 @@ DESC
                :desc => <<-DESC
 The time precision of timestamp.
 You should specify either hour (h), minutes (m), second (s),
-millisecond (ms), microsecond (u), or nanosecond (n).
+millisecond (ms), microsecond (u), or nanosecond (ns).
 DESC
   config_param :use_ssl, :bool, :default => false,
                :desc => "Use SSL when connecting to influxDB."
@@ -92,7 +92,7 @@ DESC
     if record.empty? || record.has_value?(nil)
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
-      [tag, time, record].to_msgpack
+      [tag, precision_time(time), record].to_msgpack
     end
   end
 
@@ -161,6 +161,28 @@ DESC
       else
         @influxdb.write_points(points, nil, @default_retention_policy)
       end
+    end
+  end
+
+  def precision_time(time)
+    # nsec is supported from v0.14
+    nstime = time * (10 ** 9) + (defined?(Fluent::EventTime) ? time.nsec : 0)
+    case @time_precision
+    when "h" then
+      nstime / (10 ** 9) / (60 ** 2)
+    when "m" then
+      nstime / (10 ** 9) / 60
+    when "s" then
+      nstime / (10 ** 9)
+    when "ms" then
+      nstime / (10 ** 6)
+    when "u" then
+      nstime / (10 ** 3)
+    when "ns" then
+      nstime
+    else
+      raise Fluent::ConfigError, 'time_precision ' + @time_precision + ' is invalid.' +
+        'should specify either either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)'
     end
   end
 end

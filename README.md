@@ -49,7 +49,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `time_key`: Use value of this tag if it exists in event instead of event timestamp
 
-`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (n)
+`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)
 
 `tag_keys`: The names of the keys to use as influxDB tags.
 
