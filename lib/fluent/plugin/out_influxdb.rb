@@ -57,6 +57,7 @@ DESC
 
   def configure(conf)
     super
+    @time_precise = time_precise_lambda()
   end
 
   def start
@@ -164,25 +165,29 @@ DESC
     end
   end
 
-  def precision_time(time)
-    # nsec is supported from v0.14
-    nstime = time * (10 ** 9) + (defined?(Fluent::EventTime) ? time.nsec : 0)
-    case @time_precision
-    when "h" then
-      nstime / (10 ** 9) / (60 ** 2)
-    when "m" then
-      nstime / (10 ** 9) / 60
-    when "s" then
-      nstime / (10 ** 9)
-    when "ms" then
-      nstime / (10 ** 6)
-    when "u" then
-      nstime / (10 ** 3)
-    when "ns" then
-      nstime
+  def time_precise_lambda()
+    case @time_precision.to_sym
+    when :h then
+      lambda{|nstime| nstime / (10 ** 9) / (60 ** 2) }
+    when :m then
+      lambda{|nstime| nstime / (10 ** 9) / 60 }
+    when :s then
+      lambda{|nstime| nstime / (10 ** 9) }
+    when :ms then
+      lambda{|nstime| nstime / (10 ** 6) }
+    when :u then
+      lambda{|nstime| nstime / (10 ** 3) }
+    when :ns then
+      lambda{|nstime| nstime }
     else
       raise Fluent::ConfigError, 'time_precision ' + @time_precision + ' is invalid.' +
         'should specify either either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)'
     end
+  end
+
+  def precision_time(time)
+    # nsec is supported from v0.14
+    nstime = time * (10 ** 9) + (defined?(Fluent::EventTime) ? time.nsec : 0)
+    @time_precise.call(nstime)
   end
 end
