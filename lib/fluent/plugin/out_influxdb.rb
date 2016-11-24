@@ -80,7 +80,7 @@ DESC
       unless existing_databases.include? @dbname
         raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',')
       end
-    rescue InfluxDB::AuthenticationError
+    rescue InfluxDB::AuthenticationError, InfluxDB::Error
       $log.info "skip database presence check because '#{@user}' user doesn't have admin privilege. Check '#{@dbname}' exists on influxdb"
     end
   end
