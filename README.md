@@ -13,6 +13,14 @@ If you are using InfluxDB version 0.8 please specify version 0.1.8 of this plugi
 
     $ fluent-gem install fluent-plugin-influxdb
 
+### Ruby 2.0 or earlier
+
+`influxdb` gem requires `cause` gem in Ruby 2.0 or earlier. If you want to use `fluent-plugin-influxdb` with Ruby 2.0 or earlier,
+you should install `cause` gem before install `fluent-plugin-influxdb`.
+
+We don't recommend to use Ruby 2.0 or earlier version because these are EOL.
+If you don't have a problem, use ruby 2.1 or later in production.
+
 ## Usage
 
 Just like other regular output plugins, Use type `influxdb` in your fluentd configuration under `match` scope:
@@ -23,7 +31,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 **Options:**
 
-`host`: The IP or domain of influxDB, default to "localhost"
+`host`: The IP or domain of influxDB, separate with comma, default to "localhost"
 
 `port`: The HTTP port of influxDB, default to 8086
 
@@ -33,15 +41,23 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `password`: The password of the user, default to "root"
 
+`retry`: The finite number of retry times. default is infinite
+
 `use_ssl`: Use SSL when connecting to influxDB. default to false
 
 `verify_ssl`: Enable/Disable SSL Certs verification when connecting to influxDB via SSL. default to true
 
-`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (n)
+`time_key`: Use value of this tag if it exists in event instead of event timestamp
+
+`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)
 
 `tag_keys`: The names of the keys to use as influxDB tags.
 
 `sequence_tag`: The name of the tag whose value is incremented for the consecutive simultaneous events and reset to zero for a new event with the different timestamp
+
+`default_retention_policy`: The retention policy applied by default.  influxdb >= 0.2.3 is required to use this functionality.
+
+`retention_policy_key`: The name of the key in the record whose value specifies the retention policy.  The default retention policy will be applied if no such key exists.  influxdb >= 0.2.3 is required to use this functionality.
 
 ### Fluentd Tag and InfluxDB Series
 
@@ -52,7 +68,7 @@ So if you have events with `app.event`, influxdb plugin inserts events into `app
 
 ```
 <match mylog.*>
-  type influxdb
+  @type influxdb
   host  localhost
   port  8086
   dbname test

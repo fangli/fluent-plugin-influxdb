@@ -12,8 +12,11 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [{'name' => 'test'}]
     end
 
-    def write_points(points)
-      @points += points
+    def stop!
+    end
+
+    def write_points(points, precision=nil, retention_policy=nil)
+      @points << [points, precision, retention_policy]
     end
   end
 
@@ -39,7 +42,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   def create_driver(conf=CONFIG, tag='test')
     Fluent::Test::BufferedOutputTestDriver.new(Fluent::InfluxdbOutput, tag) do
       attr_reader :influxdb
-      def start
+      def configure(conf)
         @influxdb = DummyInfluxDBClient.new()
         super
       end
@@ -59,7 +62,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
   def test_format
     driver = create_driver(CONFIG, 'test')
-    time = Time.parse('2011-01-02 13:14:15 UTC').to_i
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
 
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
@@ -73,25 +76,31 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   def test_write
     driver = create_driver(CONFIG, 'input.influxdb')
 
-    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
 
     data = driver.run
 
     assert_equal([
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 1},
-        :tags      => {},
-      },
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 2},
-        :tags      => {},
-      }
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 1}
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 2}
+          },
+        ],
+        nil,
+        nil
+      ]
     ], driver.instance.influxdb.points)
 
   end
@@ -105,7 +114,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
     driver = create_driver(config_with_tags, 'input.influxdb')
 
-    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
     driver.emit({'a' => 1, 'b' => ''}, time)
     driver.emit({'a' => 2, 'b' => 1}, time)
     driver.emit({'a' => 3, 'b' => ' '}, time)
@@ -113,24 +122,30 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     data = driver.run
 
     assert_equal([
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 1},
-        :tags      => {},
-      },
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 2},
-        :tags      => {'b' => 1},
-      },
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 3},
-        :tags      => {},
-      }
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 1},
+            :tags      => {},
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 2},
+            :tags      => {'b' => 1},
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 3},
+            :tags      => {},
+          },
+        ],
+        nil,
+        nil
+      ]
     ], driver.instance.influxdb.points)
   end
 
@@ -143,45 +158,204 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       user  testuser
       password  mypwd
       use_ssl false
-      time_precision s 
+      time_precision s
       sequence_tag _seq
     ]
     driver = create_driver(config, 'input.influxdb')
 
-    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
 
-    driver.emit({'a' => 1}, time + 1)
-    driver.emit({'a' => 2}, time + 1)
+    time2 = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:16 UTC'))
+    driver.emit({'a' => 1}, time2)
+    driver.emit({'a' => 2}, time2)
 
     data = driver.run
 
     assert_equal([
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 1},
-        :tags      => {'_seq' => 0},
-      },
-      {
-        :timestamp => time,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 2},
-        :tags      => {'_seq' => 1},
-      },
-      {
-        :timestamp => time + 1,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 1},
-        :tags      => {'_seq' => 0},
-      },
-      {
-        :timestamp => time + 1,
-        :series    => 'input.influxdb',
-        :values    => {'a' => 2},
-        :tags      => {'_seq' => 1},
-      }
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 1},
+            :tags      => {'_seq' => 0},
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 2},
+            :tags      => {'_seq' => 1},
+          },
+          {
+            :timestamp => time2,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 1},
+            :tags      => {'_seq' => 0},
+          },
+          {
+            :timestamp => time2,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 2},
+            :tags      => {'_seq' => 1},
+          }
+        ],
+        nil,
+        nil
+      ]
     ], driver.instance.influxdb.points)
+
+  end
+
+  def test_write_default_retention_policy_only
+    config = CONFIG + "\n" + %[
+      default_retention_policy ephemeral_1d
+    ]
+    driver = create_driver(config, 'input.influxdb')
+
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    driver.emit({'a' => 1}, time)
+    driver.emit({'a' => 2}, time)
+
+    data = driver.run
+
+    assert_equal([
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 1}
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 2}
+          },
+        ],
+        nil,
+        'ephemeral_1d'
+      ]
+    ], driver.instance.influxdb.points)
+
+  end
+
+  def test_write_respective_retention_policy
+    config = CONFIG + "\n" + %[
+      retention_policy_key rp
+    ]
+    driver = create_driver(config, 'input.influxdb')
+
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    driver.emit({'a' => 1}, time)
+    driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
+    driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
+
+    data = driver.run
+
+    assert_equal([
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 1},
+          }
+        ],
+        nil,
+        nil
+      ],
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 2},
+          }
+        ],
+        nil,
+        'ephemeral_1d'
+      ],
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 3},
+          }
+        ],
+        nil,
+        'ephemeral_1m'
+      ]
+    ], driver.instance.influxdb.points)
+
+  end
+
+  def test_write_combined_retention_policy
+    config = CONFIG + "\n" + %[
+      default_retention_policy ephemeral_1d
+      retention_policy_key rp
+    ]
+    driver = create_driver(config, 'input.influxdb')
+
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    driver.emit({'a' => 1}, time)
+    driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
+    driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
+    driver.emit({'a' => 4}, time)
+
+    data = driver.run
+
+    assert_equal([
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 1},
+          },
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 2},
+          }
+        ],
+        nil,
+        'ephemeral_1d'
+      ],
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 3},
+          }
+        ],
+        nil,
+        'ephemeral_1m'
+      ],
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :tags      => {},
+            :values    => {'a' => 4},
+          }
+        ],
+        nil,
+        'ephemeral_1d'
+      ]
+    ], driver.instance.influxdb.points)
+
   end
 end

@@ -1,6 +1,23 @@
 Changelog
 =========
 
+0.2.8 (July, 06, 2016)
+=====
+
+- Accept comma-separated multiple hosts in host parameter
+
+0.2.7 (May, 10, 2016)
+=====
+
+- Add default_retention_policy and retention_policy parameters
+
+0.2.6 (Apr, 22, 2016)
+=====
+
+- Add time_key parameter
+- Add retry parameter
+- Skip database check when user doesn't have right permission
+
 0.2.5 (Apr, 19, 2016)
 =====
 
