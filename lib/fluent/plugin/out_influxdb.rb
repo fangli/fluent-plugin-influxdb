@@ -134,7 +134,7 @@ DESC
       end
 
       if values.empty?
-          $log.info "Skip record '#{record}', because InfluxDB requires at least one value in raw"
+          $log.warn "Skip record '#{record}', because InfluxDB requires at least one value in raw"
           next
       end
 
