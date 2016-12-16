@@ -102,7 +102,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
         nil
       ]
     ], driver.instance.influxdb.points)
-
   end
 
   def test_empty_tag_keys
@@ -142,6 +141,37 @@ class InfluxdbOutputTest < Test::Unit::TestCase
             :values    => {'a' => 3},
             :tags      => {},
           },
+        ],
+        nil,
+        nil
+      ]
+    ], driver.instance.influxdb.points)
+  end
+
+ def test_ignore_empty_values
+    config_with_tags = %Q(
+      #{CONFIG}
+
+      tag_keys ["b"]
+    )
+
+    driver = create_driver(config_with_tags, 'input.influxdb')
+
+    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    driver.emit({'b' => '3'}, time)
+    driver.emit({'a' => 2, 'b' => 1}, time)
+
+    data = driver.run
+
+    assert_equal([
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'input.influxdb',
+            :values    => {'a' => 2},
+            :tags      => {'b' => 1},
+          }
         ],
         nil,
         nil

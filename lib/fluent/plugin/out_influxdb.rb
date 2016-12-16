@@ -132,6 +132,12 @@ DESC
         tags[@sequence_tag] = @seq
         @prev_timestamp = timestamp
       end
+
+      if values.empty?
+          log.warn "Skip record '#{record}', because InfluxDB requires at least one value in raw"
+          next
+      end
+
       point = {
         :timestamp => timestamp,
         :series    => tag,
