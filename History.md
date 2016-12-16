@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.3.0 (Dec, 15, 2016)
+=====
+
+- Skip events which contains only tags
+- Fix error handling for v1.0 client
+- Adjust timestamp based on precision
+
 0.2.8 (July, 06, 2016)
 =====
 
