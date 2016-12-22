@@ -114,7 +114,7 @@ DESC
         values = {}
         tags = {}
         record.each_pair do |k, v|
-          if @auto_tags and v.is_a? String or @tag_keys.include?(k)
+          if (@auto_tags && v.is_a?(String)) || @tag_keys.include?(k)
             # If the tag value is not nil, empty, or a space, add the tag
             if v.to_s.strip != ''
               tags[k] = v
