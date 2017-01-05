@@ -30,7 +30,7 @@ DESC
                :desc => <<-DESC
 The time precision of timestamp.
 You should specify either hour (h), minutes (m), second (s),
-millisecond (ms), microsecond (u), or nanosecond (n).
+millisecond (ms), microsecond (u), or nanosecond (ns).
 DESC
   config_param :use_ssl, :bool, :default => false,
                :desc => "Use SSL when connecting to influxDB."
@@ -59,6 +59,7 @@ DESC
 
   def configure(conf)
     super
+    @time_precise = time_precise_lambda()
   end
 
   def start
@@ -82,7 +83,7 @@ DESC
       unless existing_databases.include? @dbname
         raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',')
       end
-    rescue InfluxDB::AuthenticationError
+    rescue InfluxDB::AuthenticationError, InfluxDB::Error
       $log.info "skip database presence check because '#{@user}' user doesn't have admin privilege. Check '#{@dbname}' exists on influxdb"
     end
   end
@@ -94,7 +95,7 @@ DESC
     if record.empty? || record.has_value?(nil)
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
-      [tag, time, record].to_msgpack
+      [tag, precision_time(time), record].to_msgpack
     end
   end
 
@@ -133,6 +134,12 @@ DESC
         tags[@sequence_tag] = @seq
         @prev_timestamp = timestamp
       end
+
+      if values.empty?
+          log.warn "Skip record '#{record}', because InfluxDB requires at least one value in raw"
+          next
+      end
+
       point = {
         :timestamp => timestamp,
         :series    => tag,
@@ -164,5 +171,31 @@ DESC
         @influxdb.write_points(points, nil, @default_retention_policy)
       end
     end
+  end
+
+  def time_precise_lambda()
+    case @time_precision.to_sym
+    when :h then
+      lambda{|nstime| nstime / (10 ** 9) / (60 ** 2) }
+    when :m then
+      lambda{|nstime| nstime / (10 ** 9) / 60 }
+    when :s then
+      lambda{|nstime| nstime / (10 ** 9) }
+    when :ms then
+      lambda{|nstime| nstime / (10 ** 6) }
+    when :u then
+      lambda{|nstime| nstime / (10 ** 3) }
+    when :ns then
+      lambda{|nstime| nstime }
+    else
+      raise Fluent::ConfigError, 'time_precision ' + @time_precision + ' is invalid.' +
+        'should specify either either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)'
+    end
+  end
+
+  def precision_time(time)
+    # nsec is supported from v0.14
+    nstime = time * (10 ** 9) + (defined?(Fluent::EventTime) ? time.nsec : 0)
+    @time_precise.call(nstime)
   end
 end
