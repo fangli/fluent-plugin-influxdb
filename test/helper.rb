@@ -24,7 +24,10 @@ unless ENV.has_key?('VERBOSE')
   $log = nulllogger
 end
 
+require 'fluent/test/helpers'
 require 'fluent/plugin/out_influxdb'
+
+include Fluent::Test::Helpers
 
 class Test::Unit::TestCase
 end

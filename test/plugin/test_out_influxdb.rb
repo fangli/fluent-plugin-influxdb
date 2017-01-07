@@ -62,7 +62,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
   def test_format
     driver = create_driver(CONFIG, 'test')
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
 
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
@@ -76,7 +76,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
   def test_write
     driver = create_driver(CONFIG, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
 
@@ -113,7 +113,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
     driver = create_driver(config_with_tags, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1, 'b' => ''}, time)
     driver.emit({'a' => 2, 'b' => 1}, time)
     driver.emit({'a' => 3, 'b' => ' '}, time)
@@ -157,7 +157,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
     driver = create_driver(config_with_tags, 'input.influxdb')
 
-    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    time = event_time("2011-01-02 13:14:15 UTC")
     driver.emit({'a' => 1, 'b' => '1'}, time)
     driver.emit({'a' => 2, 'b' => 1}, time)
     driver.emit({'a' => 3, 'b' => ' '}, time)
@@ -204,7 +204,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
 
     driver = create_driver(config_with_tags, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'b' => '3'}, time)
     driver.emit({'a' => 2, 'b' => 1}, time)
 
@@ -241,11 +241,11 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ]
     driver = create_driver(config, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
 
-    time2 = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:16 UTC'))
+    time2 = event_time('2011-01-02 13:14:16 UTC')
     driver.emit({'a' => 1}, time2)
     driver.emit({'a' => 2}, time2)
 
@@ -292,7 +292,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ]
     driver = create_driver(config, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
 
@@ -327,7 +327,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ]
     driver = create_driver(config, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
     driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
@@ -382,7 +382,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ]
     driver = create_driver(config, 'input.influxdb')
 
-    time = Fluent::EventTime.from_time(Time.parse('2011-01-02 13:14:15 UTC'))
+    time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
     driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
