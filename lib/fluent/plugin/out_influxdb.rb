@@ -18,6 +18,7 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 The database name of influxDB.
 You should create the database and grant permissions at first.
 DESC
+  config_param :skip_show_databases, :bool, :default => false,
   config_param :user, :string,  :default => 'root',
                :desc => "The DB user of influxDB, should be created manually."
   config_param :password, :string,  :default => 'root', :secret => true,
@@ -79,7 +80,8 @@ DESC
                                                 verify_ssl: @verify_ssl
 
     begin
-      existing_databases = @influxdb.list_databases.map { |x| x['name'] }
+      existing_databases = @influxdb.list_databases.map { |x| x['name'] } unless skip_show_databases
+      existing_databases = [@dbname] if skip_show_databases
       unless existing_databases.include? @dbname
         raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',')
       end
