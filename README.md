@@ -51,6 +51,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)
 
+`auto_tags`: Enable/Disable auto-tagging behaviour which makes strings tags.
+
 `tag_keys`: The names of the keys to use as influxDB tags.
 
 `sequence_tag`: The name of the tag whose value is incremented for the consecutive simultaneous events and reset to zero for a new event with the different timestamp
