@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.1 (Jan, 07, 2017)
+=====
+
+- Add auto_tags parameter
+
 0.3.0 (Dec, 15, 2016)
 =====
 
