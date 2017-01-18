@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.2 (Jan, 18, 2017)
+=====
+
+- Add measurement parameter
+
 0.3.1 (Jan, 07, 2017)
 =====
 
