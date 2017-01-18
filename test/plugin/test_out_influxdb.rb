@@ -103,10 +103,44 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ], driver.instance.influxdb.points)
   end
 
+  def test_write_with_measurement
+    config_with_measurement = %Q(
+      #{CONFIG}
+      measurement test
+    )
+
+    driver = create_driver(config_with_measurement, 'input.influxdb')
+
+    time = event_time('2011-01-02 13:14:15 UTC')
+    driver.emit({'a' => 1}, time)
+    driver.emit({'a' => 2}, time)
+    driver.run
+
+    assert_equal([
+      [
+        [
+          {
+            :timestamp => time,
+            :series    => 'test',
+            :tags      => {},
+            :values    => {'a' => 1}
+          },
+          {
+            :timestamp => time,
+            :series    => 'test',
+            :tags      => {},
+            :values    => {'a' => 2}
+          },
+        ],
+        nil,
+        nil
+      ]
+    ], driver.instance.influxdb.points)
+  end
+
   def test_empty_tag_keys
     config_with_tags = %Q(
       #{CONFIG}
-
       tag_keys ["b"]
     )
 
