@@ -18,6 +18,8 @@ class Fluent::InfluxdbOutput < Fluent::BufferedOutput
 The database name of influxDB.
 You should create the database and grant permissions at first.
 DESC
+  config_param :measurement, :string, :default => nil,
+               :desc => "The measurement name to insert events. If not specified, fluentd's tag is used"
   config_param :user, :string,  :default => 'root',
                :desc => "The DB user of influxDB, should be created manually."
   config_param :password, :string,  :default => 'root', :secret => true,
@@ -142,7 +144,7 @@ DESC
 
       point = {
         :timestamp => timestamp,
-        :series    => tag,
+        :series    => @measurement || tag,
         :values    => values,
         :tags      => tags,
       }
