@@ -79,8 +79,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     time = event_time('2011-01-02 13:14:15 UTC')
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
-
-    data = driver.run
+    driver.run
 
     assert_equal([
       [
@@ -118,7 +117,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 2, 'b' => 1}, time)
     driver.emit({'a' => 3, 'b' => ' '}, time)
 
-    data = driver.run
+    driver.run
 
     assert_equal([
       [
@@ -147,8 +146,8 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       ]
     ], driver.instance.influxdb.points)
   end
-  
- def test_auto_tagging
+
+  def test_auto_tagging
     config_with_tags = %Q(
       #{CONFIG}
 
@@ -162,9 +161,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 2, 'b' => 1}, time)
     driver.emit({'a' => 3, 'b' => ' '}, time)
 
-
-    data = driver.run
-
+    driver.run
     assert_equal([
       [
         [
@@ -193,9 +190,9 @@ class InfluxdbOutputTest < Test::Unit::TestCase
         nil
       ]
     ], driver.instance.influxdb.points)
-  end  
+  end
 
- def test_ignore_empty_values
+  def test_ignore_empty_values
     config_with_tags = %Q(
       #{CONFIG}
 
@@ -208,8 +205,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'b' => '3'}, time)
     driver.emit({'a' => 2, 'b' => 1}, time)
 
-    data = driver.run
-
+    driver.run
     assert_equal([
       [
         [
@@ -249,8 +245,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 1}, time2)
     driver.emit({'a' => 2}, time2)
 
-    data = driver.run
-
+    driver.run
     assert_equal([
       [
         [
@@ -296,8 +291,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 1}, time)
     driver.emit({'a' => 2}, time)
 
-    data = driver.run
-
+    driver.run
     assert_equal([
       [
         [
@@ -332,8 +326,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
     driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
 
-    data = driver.run
-
+    driver.run
     assert_equal([
       [
         [
@@ -388,8 +381,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
     driver.emit({'a' => 4}, time)
 
-    data = driver.run
-
+    driver.run
     assert_equal([
       [
         [
