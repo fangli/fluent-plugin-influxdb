@@ -37,6 +37,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `dbname`: The database name of influxDB, default to "fluentd". you should create the database and grant permissions first
 
+`measurement`: The measurement/serise for record insertion. The default is nil.
+
 `user`: The DB user of influxDB, should be created manually, default to "root"
 
 `password`: The password of the user, default to "root"
@@ -65,6 +67,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 influxdb plugin uses Fluentd event tag for InfluxDB series.
 So if you have events with `app.event`, influxdb plugin inserts events into `app.event` series in InfluxDB.
+
+If you set `measurement` parameter, use its value instead of event tag.
 
 ## Configuration Example
 
