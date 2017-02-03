@@ -1,57 +1,63 @@
 # encoding: UTF-8
 require 'date'
 require 'influxdb'
-require 'fluent/output'
+require 'fluent/plugin/output'
 require 'fluent/mixin'
 
-class Fluent::InfluxdbOutput < Fluent::BufferedOutput
+class Fluent::Plugin::InfluxdbOutput < Fluent::Plugin::Output
   Fluent::Plugin.register_output('influxdb', self)
 
-  include Fluent::HandleTagNameMixin
+  helpers :compat_parameters
 
-  config_param :host, :string,  :default => 'localhost',
-               :desc => "The IP or domain of influxDB, separate with comma."
-  config_param :port, :integer,  :default => 8086,
-               :desc => "The HTTP port of influxDB."
-  config_param :dbname, :string,  :default => 'fluentd',
-               :desc => <<-DESC
+  DEFAULT_BUFFER_TYPE = "memory"
+
+  config_param :host, :string,  default: 'localhost',
+               desc: "The IP or domain of influxDB, separate with comma."
+  config_param :port, :integer,  default: 8086,
+               desc: "The HTTP port of influxDB."
+  config_param :dbname, :string,  default: 'fluentd',
+               desc: <<-DESC
 The database name of influxDB.
 You should create the database and grant permissions at first.
 DESC
-  config_param :measurement, :string, :default => nil,
-               :desc => "The measurement name to insert events. If not specified, fluentd's tag is used"
-  config_param :user, :string,  :default => 'root',
-               :desc => "The DB user of influxDB, should be created manually."
-  config_param :password, :string,  :default => 'root', :secret => true,
-               :desc => "The password of the user."
-  config_param :retry, :integer, :default => nil,
-               :desc => 'The finite number of retry times. default is infinite'
-  config_param :time_key, :string, :default => 'time',
-               :desc => 'Use value of this tag if it exists in event instead of event timestamp'
-  config_param :time_precision, :string, :default => 's',
-               :desc => <<-DESC
+  config_param :measurement, :string, default: nil,
+               desc: "The measurement name to insert events. If not specified, fluentd's tag is used"
+  config_param :user, :string,  default: 'root',
+               desc: "The DB user of influxDB, should be created manually."
+  config_param :password, :string,  default: 'root', secret: true,
+               desc: "The password of the user."
+  config_param :retry, :integer, default: nil,
+               desc: 'The finite number of retry times. default is infinite'
+  config_param :time_key, :string, default: 'time',
+               desc: 'Use value of this tag if it exists in event instead of event timestamp'
+  config_param :time_precision, :string, default: 's',
+               desc: <<-DESC
 The time precision of timestamp.
 You should specify either hour (h), minutes (m), second (s),
 millisecond (ms), microsecond (u), or nanosecond (ns).
 DESC
-  config_param :use_ssl, :bool, :default => false,
-               :desc => "Use SSL when connecting to influxDB."
-  config_param :verify_ssl, :bool, :default => true,
-               :desc => "Enable/Disable SSL Certs verification when connecting to influxDB via SSL."
-  config_param :auto_tags, :bool, :default => false,
-               :desc => "Enable/Disable auto-tagging behaviour which makes strings tags."
-  config_param :tag_keys, :array, :default => [],
-               :desc => "The names of the keys to use as influxDB tags."
-  config_param :sequence_tag, :string, :default => nil,
-               :desc => <<-DESC
+  config_param :use_ssl, :bool, default: false,
+               desc: "Use SSL when connecting to influxDB."
+  config_param :verify_ssl, :bool, default: true,
+               desc: "Enable/Disable SSL Certs verification when connecting to influxDB via SSL."
+  config_param :auto_tags, :bool, default: false,
+               desc: "Enable/Disable auto-tagging behaviour which makes strings tags."
+  config_param :tag_keys, :array, default: [],
+               desc: "The names of the keys to use as influxDB tags."
+  config_param :sequence_tag, :string, default: nil,
+               desc: <<-DESC
 The name of the tag whose value is incremented for the consecutive simultaneous
 events and reset to zero for a new event with the different timestamp.
 DESC
-  config_param :retention_policy_key, :string, :default => nil,
-               :desc => "The key of the key in the record that stores the retention policy name"
-  config_param :default_retention_policy, :string, :default => nil,
-               :desc => "The name of the default retention policy"
+  config_param :retention_policy_key, :string, default: nil,
+               desc: "The key of the key in the record that stores the retention policy name"
+  config_param :default_retention_policy, :string, default: nil,
+               desc: "The name of the default retention policy"
 
+  config_section :buffer do
+    config_set_default :@type, DEFAULT_BUFFER_TYPE
+    config_set_default :chunk_keys, ['tag']
+  end
 
   def initialize
     super
@@ -60,8 +66,10 @@ DESC
   end
 
   def configure(conf)
+    compat_parameters_convert(conf, :buffer)
     super
     @time_precise = time_precise_lambda()
+    raise Fluent::ConfigError, "'tag' in chunk_keys is required." if not @chunk_key_tag
   end
 
   def start
@@ -97,7 +105,7 @@ DESC
     if record.empty? || record.has_value?(nil)
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
-      [tag, precision_time(time), record].to_msgpack
+      [precision_time(time), record].to_msgpack
     end
   end
 
@@ -106,9 +114,18 @@ DESC
     @influxdb.stop!
   end
 
+  def formatted_to_msgpack_binary
+    true
+  end
+
+  def multi_workers_ready?
+    true
+  end
+
   def write(chunk)
     points = []
-    chunk.msgpack_each do |tag, time, record|
+    tag = chunk.metadata.tag
+    chunk.msgpack_each do |time, record|
       timestamp = record.delete(@time_key) || time
       if tag_keys.empty? && !@auto_tags
         values = record
@@ -143,10 +160,10 @@ DESC
       end
 
       point = {
-        :timestamp => timestamp,
-        :series    => @measurement || tag,
-        :values    => values,
-        :tags      => tags,
+        timestamp: timestamp,
+        series: @measurement || tag,
+        values: values,
+        tags: tags,
       }
       retention_policy = @default_retention_policy
       unless @retention_policy_key.nil?

@@ -20,6 +20,26 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     end
   end
 
+  class DummyInfluxdbOutput < Fluent::Plugin::InfluxdbOutput
+    attr_reader :influxdb
+    def configure(conf)
+      @influxdb = DummyInfluxDBClient.new()
+      super
+    end
+
+    def format(tag, time, record)
+      super
+    end
+
+    def formatted_to_msgpack_binary
+      true
+    end
+
+    def write(chunk)
+      super
+    end
+  end
+
   def setup
     Fluent::Test.setup
   end
@@ -35,18 +55,12 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     time_precision s
   ]
 
-  def create_raw_driver(conf=CONFIG, tag='test')
-    Fluent::Test::BufferedOutputTestDriver.new(Fluent::InfluxdbOutput, tag).configure(conf)
+  def create_raw_driver(conf=CONFIG)
+    Fluent::Test::Driver::Output.new(Fluent::Plugin::InfluxdbOutput).configure(conf)
   end
 
-  def create_driver(conf=CONFIG, tag='test')
-    Fluent::Test::BufferedOutputTestDriver.new(Fluent::InfluxdbOutput, tag) do
-      attr_reader :influxdb
-      def configure(conf)
-        @influxdb = DummyInfluxDBClient.new()
-        super
-      end
-    end.configure(conf)
+  def create_driver(conf=CONFIG)
+    Fluent::Test::Driver::Output.new(DummyInfluxdbOutput).configure(conf)
   end
 
   def test_configure
@@ -60,47 +74,63 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     assert_equal('xxxxxx', driver.instance.config['password'])
   end
 
-  def test_format
-    driver = create_driver(CONFIG, 'test')
-    time = event_time('2011-01-02 13:14:15 UTC')
-
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2}, time)
-
-    driver.expect_format(['test', time, {'a' => 1}].to_msgpack)
-    driver.expect_format(['test', time, {'a' => 2}].to_msgpack)
-
-    driver.run
+  def test_configure_without_tag_chunk_key
+    assert_raise(Fluent::ConfigError) do
+      create_raw_driver %[
+        dbname test
+        user  testuser
+        password  mypwd
+        <buffer arbitrary_key>
+          @type memory
+        </buffer>
+      ]
+    end
   end
 
-  def test_write
-    driver = create_driver(CONFIG, 'input.influxdb')
-
+  def test_format
+    driver = create_driver(CONFIG)
     time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2}, time)
-    driver.run
 
-    assert_equal([
-      [
+    driver.run(default_tag: 'test') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2})
+    end
+
+    assert_equal [[time, {'a' => 1}].to_msgpack,
+                  [time, {'a' => 2}].to_msgpack], driver.formatted
+  end
+
+  sub_test_case "#write" do
+    test "buffer" do
+      driver = create_driver(CONFIG)
+
+      time = event_time("2011-01-02 13:14:15 UTC")
+      driver.run(default_tag: 'input.influxdb') do
+        driver.feed(time, {'a' => 1})
+        driver.feed(time, {'a' => 2})
+      end
+
+      assert_equal([
         [
-          {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1}
-          },
-          {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2}
-          },
-        ],
-        nil,
-        nil
-      ]
-    ], driver.instance.influxdb.points)
+          [
+            {
+              timestamp: time,
+              series: 'input.influxdb',
+              tags: {},
+              values: {'a' => 1}
+            },
+            {
+              timestamp: time,
+              series: 'input.influxdb',
+              tags: {},
+              values: {'a' => 2}
+            },
+          ],
+          nil,
+          nil
+        ]
+      ], driver.instance.influxdb.points)
+    end
   end
 
   def test_write_with_measurement
@@ -109,12 +139,13 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       measurement test
     )
 
-    driver = create_driver(config_with_measurement, 'input.influxdb')
+    driver = create_driver(config_with_measurement)
 
     time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2}, time)
-    driver.run
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2})
+    end
 
     assert_equal([
       [
@@ -144,35 +175,35 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       tag_keys ["b"]
     )
 
-    driver = create_driver(config_with_tags, 'input.influxdb')
+    driver = create_driver(config_with_tags)
 
-    time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1, 'b' => ''}, time)
-    driver.emit({'a' => 2, 'b' => 1}, time)
-    driver.emit({'a' => 3, 'b' => ' '}, time)
-
-    driver.run
+    time = event_time("2011-01-02 13:14:15 UTC")
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1, 'b' => ''})
+      driver.feed(time, {'a' => 2, 'b' => 1})
+      driver.feed(time, {'a' => 3, 'b' => ' '})
+    end
 
     assert_equal([
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 1},
-            :tags      => {},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 1},
+            tags: {},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 2},
-            :tags      => {'b' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 2},
+            tags: {'b' => 1},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 3},
-            :tags      => {},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 3},
+            tags: {},
           },
         ],
         nil,
@@ -188,14 +219,15 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       auto_tags true
     )
 
-    driver = create_driver(config_with_tags, 'input.influxdb')
+    driver = create_driver(config_with_tags)
 
     time = event_time("2011-01-02 13:14:15 UTC")
-    driver.emit({'a' => 1, 'b' => '1'}, time)
-    driver.emit({'a' => 2, 'b' => 1}, time)
-    driver.emit({'a' => 3, 'b' => ' '}, time)
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1, 'b' => '1'})
+      driver.feed(time, {'a' => 2, 'b' => 1})
+      driver.feed(time, {'a' => 3, 'b' => ' '})
+    end
 
-    driver.run
     assert_equal([
       [
         [
@@ -233,13 +265,14 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       tag_keys ["b"]
     )
 
-    driver = create_driver(config_with_tags, 'input.influxdb')
+    driver = create_driver(config_with_tags)
 
     time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'b' => '3'}, time)
-    driver.emit({'a' => 2, 'b' => 1}, time)
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'b' => '3'})
+      driver.feed(time, {'a' => 2, 'b' => 1})
+    end
 
-    driver.run
     assert_equal([
       [
         [
@@ -255,7 +288,7 @@ class InfluxdbOutputTest < Test::Unit::TestCase
         nil
       ]
     ], driver.instance.influxdb.points)
-  end  
+  end
 
   def test_seq
     config = %[
@@ -269,43 +302,44 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       time_precision s
       sequence_tag _seq
     ]
-    driver = create_driver(config, 'input.influxdb')
+    driver = create_driver(config)
 
-    time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2}, time)
+    time = event_time("2011-01-02 13:14:15 UTC")
+    next_time = Fluent::EventTime.new(time + 1)
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2})
 
-    time2 = event_time('2011-01-02 13:14:16 UTC')
-    driver.emit({'a' => 1}, time2)
-    driver.emit({'a' => 2}, time2)
+      driver.feed(next_time, {'a' => 1})
+      driver.feed(next_time, {'a' => 2})
+    end
 
-    driver.run
     assert_equal([
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 1},
-            :tags      => {'_seq' => 0},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 1},
+            tags: {'_seq' => 0},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 2},
-            :tags      => {'_seq' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            values: {'a' => 2},
+            tags: {'_seq' => 1},
           },
           {
-            :timestamp => time2,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 1},
-            :tags      => {'_seq' => 0},
+            timestamp: time + 1,
+            series: 'input.influxdb',
+            values: {'a' => 1},
+            tags: {'_seq' => 0},
           },
           {
-            :timestamp => time2,
-            :series    => 'input.influxdb',
-            :values    => {'a' => 2},
-            :tags      => {'_seq' => 1},
+            timestamp: time + 1,
+            series: 'input.influxdb',
+            values: {'a' => 2},
+            tags: {'_seq' => 1},
           }
         ],
         nil,
@@ -319,27 +353,28 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     config = CONFIG + "\n" + %[
       default_retention_policy ephemeral_1d
     ]
-    driver = create_driver(config, 'input.influxdb')
+    driver = create_driver(config)
 
-    time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2}, time)
+    time = event_time("2011-01-02 13:14:15 UTC")
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2})
+    end
 
-    driver.run
     assert_equal([
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1}
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 1}
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2}
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 2}
           },
         ],
         nil,
@@ -353,22 +388,23 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     config = CONFIG + "\n" + %[
       retention_policy_key rp
     ]
-    driver = create_driver(config, 'input.influxdb')
+    driver = create_driver(config)
 
-    time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
-    driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
+    time = event_time("2011-01-02 13:14:15 UTC")
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2, 'rp' => 'ephemeral_1d'})
+      driver.feed(time, {'a' => 3, 'rp' => 'ephemeral_1m'})
+    end
 
-    driver.run
     assert_equal([
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 1},
           }
         ],
         nil,
@@ -377,10 +413,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 2},
           }
         ],
         nil,
@@ -389,10 +425,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 3},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 3},
           }
         ],
         nil,
@@ -407,29 +443,30 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       default_retention_policy ephemeral_1d
       retention_policy_key rp
     ]
-    driver = create_driver(config, 'input.influxdb')
+    driver = create_driver(config)
 
-    time = event_time('2011-01-02 13:14:15 UTC')
-    driver.emit({'a' => 1}, time)
-    driver.emit({'a' => 2, 'rp' => 'ephemeral_1d'}, time)
-    driver.emit({'a' => 3, 'rp' => 'ephemeral_1m'}, time)
-    driver.emit({'a' => 4}, time)
+    time = event_time("2011-01-02 13:14:15 UTC")
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2, 'rp' => 'ephemeral_1d'})
+      driver.feed(time, {'a' => 3, 'rp' => 'ephemeral_1m'})
+      driver.feed(time, {'a' => 4})
+    end
 
-    driver.run
     assert_equal([
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 1},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 1},
           },
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 2},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 2},
           }
         ],
         nil,
@@ -438,10 +475,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 3},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 3},
           }
         ],
         nil,
@@ -450,10 +487,10 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       [
         [
           {
-            :timestamp => time,
-            :series    => 'input.influxdb',
-            :tags      => {},
-            :values    => {'a' => 4},
+            timestamp: time,
+            series: 'input.influxdb',
+            tags: {},
+            values: {'a' => 4},
           }
         ],
         nil,
