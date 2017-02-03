@@ -105,7 +105,7 @@ DESC
     if record.empty? || record.has_value?(nil)
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
-      [tag, precision_time(time), record].to_msgpack
+      [precision_time(time), record].to_msgpack
     end
   end
 
@@ -120,7 +120,8 @@ DESC
 
   def write(chunk)
     points = []
-    chunk.msgpack_each do |tag, time, record|
+    tag = chunk.metadata.tag
+    chunk.msgpack_each do |time, record|
       timestamp = record.delete(@time_key) || time
       if tag_keys.empty? && !@auto_tags
         values = record

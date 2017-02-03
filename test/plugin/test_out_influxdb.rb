@@ -96,8 +96,8 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       driver.feed(time, {'a' => 2})
     end
 
-    assert_equal [['test', time, {'a' => 1}].to_msgpack,
-                  ['test', time, {'a' => 2}].to_msgpack], driver.formatted
+    assert_equal [[time, {'a' => 1}].to_msgpack,
+                  [time, {'a' => 2}].to_msgpack], driver.formatted
   end
 
   sub_test_case "#write" do
