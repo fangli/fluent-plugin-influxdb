@@ -98,15 +98,29 @@ DESC
     end
   end
 
+  FORMATTED_RESULT_FOR_INVALID_RECORD = ''.freeze
+
+  def format(tag, time, record)
+    # TODO: Use tag based chunk separation for more reliability
+    if record.empty? || record.has_value?(nil)
+      FORMATTED_RESULT_FOR_INVALID_RECORD
+    else
+      [tag, precision_time(time), record].to_msgpack
+    end
+  end
+
   def shutdown
     super
     @influxdb.stop!
   end
 
+  def formatted_to_msgpack_binary
+    true
+  end
+
   def write(chunk)
     points = []
-    tag = chunk.metadata.tag
-    chunk.msgpack_each do |time, record|
+    chunk.msgpack_each do |tag, time, record|
       timestamp = record.delete(@time_key) || time
       if tag_keys.empty? && !@auto_tags
         values = record

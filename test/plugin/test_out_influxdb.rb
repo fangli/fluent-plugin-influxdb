@@ -27,6 +27,14 @@ class InfluxdbOutputTest < Test::Unit::TestCase
       super
     end
 
+    def format(tag, time, record)
+      super
+    end
+
+    def formatted_to_msgpack_binary
+      true
+    end
+
     def write(chunk)
       super
     end
@@ -77,6 +85,19 @@ class InfluxdbOutputTest < Test::Unit::TestCase
         </buffer>
       ]
     end
+  end
+
+  def test_format
+    driver = create_driver(CONFIG)
+    time = event_time('2011-01-02 13:14:15 UTC')
+
+    driver.run(default_tag: 'test') do
+      driver.feed(time, {'a' => 1})
+      driver.feed(time, {'a' => 2})
+    end
+
+    assert_equal [['test', time, {'a' => 1}].to_msgpack,
+                  ['test', time, {'a' => 2}].to_msgpack], driver.formatted
   end
 
   sub_test_case "#write" do
@@ -284,12 +305,13 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     driver = create_driver(config)
 
     time = event_time("2011-01-02 13:14:15 UTC")
+    next_time = Fluent::EventTime.new(time + 1)
     driver.run(default_tag: 'input.influxdb') do
       driver.feed(time, {'a' => 1})
       driver.feed(time, {'a' => 2})
 
-      driver.feed(time + 1, {'a' => 1})
-      driver.feed(time + 1, {'a' => 2})
+      driver.feed(next_time, {'a' => 1})
+      driver.feed(next_time, {'a' => 2})
     end
 
     assert_equal([
