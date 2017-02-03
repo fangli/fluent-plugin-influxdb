@@ -118,6 +118,10 @@ DESC
     true
   end
 
+  def multi_workers_ready?
+    true
+  end
+
   def write(chunk)
     points = []
     tag = chunk.metadata.tag
