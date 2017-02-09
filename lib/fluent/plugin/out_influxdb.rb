@@ -214,7 +214,7 @@ DESC
 
   def precision_time(time)
     # nsec is supported from v0.14
-    nstime = time * (10 ** 9) + (defined?(Fluent::EventTime) ? time.nsec : 0)
+    nstime = time * (10 ** 9) + (time.is_a?(Integer) ? 0 : time.nsec)
     @time_precise.call(nstime)
   end
 end
