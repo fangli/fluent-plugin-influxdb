@@ -14,6 +14,7 @@ require 'test/unit'
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'fluent/test'
+require 'fluent/test/driver/output'
 unless ENV.has_key?('VERBOSE')
   nulllogger = Object.new
   nulllogger.instance_eval {|obj|
@@ -24,7 +25,10 @@ unless ENV.has_key?('VERBOSE')
   $log = nulllogger
 end
 
+require 'fluent/test/helpers'
 require 'fluent/plugin/out_influxdb'
+
+include Fluent::Test::Helpers
 
 class Test::Unit::TestCase
 end

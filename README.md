@@ -9,9 +9,19 @@ If you are using fluentd as a collector and want to organize your time-series da
 This version uses influxdb-ruby version 0.2.0 which no longer supports InfluxDB version 0.8 (which is also deprecated).
 If you are using InfluxDB version 0.8 please specify version 0.1.8 of this plugin.
 
+## Requirements
+
+| fluent-plugin-influxdb | fluentd | ruby |
+|------------------------|---------|------|
+| >= 1.0.0 | >= v0.14.0 | >= 2.1 |
+|  < 1.0.0 | >= v0.12.0 | >= 1.9 |
+
+NOTE: fluent-plugin-influxdb v1.0.0 is now RC. We will release stable v1.0.0 soon.
+
 ## Installation
 
-    $ fluent-gem install fluent-plugin-influxdb
+    $ fluent-gem install fluent-plugin-influxdb -v "~> 0.3"  --no-document # for fluentd v0.12 or later
+    $ fluent-gem install fluent-plugin-influxdb -v 1.0.0.rc1 --no-document # for fluentd v0.14 or later
 
 ### Ruby 2.0 or earlier
 
@@ -37,6 +47,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `dbname`: The database name of influxDB, default to "fluentd". you should create the database and grant permissions first
 
+`measurement`: The measurement/serise for record insertion. The default is nil.
+
 `user`: The DB user of influxDB, should be created manually, default to "root"
 
 `password`: The password of the user, default to "root"
@@ -49,7 +61,9 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `time_key`: Use value of this tag if it exists in event instead of event timestamp
 
-`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (n)
+`time_precision`: The time precision of timestamp. default to "s". should specify either hour (h), minutes (m), second (s), millisecond (ms), microsecond (u), or nanosecond (ns)
+
+`auto_tags`: Enable/Disable auto-tagging behaviour which makes strings tags.
 
 `tag_keys`: The names of the keys to use as influxDB tags.
 
@@ -63,6 +77,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 influxdb plugin uses Fluentd event tag for InfluxDB series.
 So if you have events with `app.event`, influxdb plugin inserts events into `app.event` series in InfluxDB.
+
+If you set `measurement` parameter, use its value instead of event tag.
 
 ## Configuration Example
 
