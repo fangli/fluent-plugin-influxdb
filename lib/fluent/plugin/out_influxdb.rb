@@ -213,8 +213,12 @@ DESC
   end
 
   def precision_time(time)
-    # nsec is supported from v0.14
-    nstime = time * (10 ** 9) + (time.is_a?(Integer) ? 0 : time.nsec)
-    @time_precise.call(nstime)
+      # nsec is supported from v0.14
+      if time.is_a?Float
+          nstime = (time * (10 ** 9)).to_i
+      else
+          nstime = time * (10 ** 9) + (time.is_a?(Integer) ? 0 : time.nsec)
+      end
+      @time_precise.call(nstime)
   end
 end
