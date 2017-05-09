@@ -75,7 +75,7 @@ DESC
   def start
     super
 
-    $log.info "Connecting to database: #{@dbname}, host: #{@host}, port: #{@port}, username: #{@user}, use_ssl = #{@use_ssl}, verify_ssl = #{@verify_ssl}"
+    log.info "Connecting to database: #{@dbname}, host: #{@host}, port: #{@port}, username: #{@user}, use_ssl = #{@use_ssl}, verify_ssl = #{@verify_ssl}"
 
     # ||= for testing.
     @influxdb ||= InfluxDB::Client.new @dbname, hosts: @host.split(','),
@@ -94,7 +94,7 @@ DESC
         raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',')
       end
     rescue InfluxDB::AuthenticationError, InfluxDB::Error
-      $log.info "skip database presence check because '#{@user}' user doesn't have admin privilege. Check '#{@dbname}' exists on influxdb"
+      log.info "skip database presence check because '#{@user}' user doesn't have admin privilege. Check '#{@dbname}' exists on influxdb"
     end
   end
 
