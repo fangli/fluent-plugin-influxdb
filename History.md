@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.3 (Aug, 30, 2017)
+=====
+
+- Restrict influxdb gem version
+
 0.3.2 (Jan, 18, 2017)
 =====
 
