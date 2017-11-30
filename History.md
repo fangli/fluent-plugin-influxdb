@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.0 (Nov, 30, 2017)
+=====
+
+- Use new plugin API
+- Update fluentd dependency to v0.14 or later
+
 0.3.2 (Jan, 18, 2017)
 =====
 
