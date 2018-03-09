@@ -103,6 +103,7 @@ DESC
   def format(tag, time, record)
     # TODO: Use tag based chunk separation for more reliability
     if record.empty? || record.has_value?(nil)
+      log.warn "Skip record '#{record}', because either record has no value or at least a value is 'nil' inside the record. "
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
       [precision_time(time), record].to_msgpack
