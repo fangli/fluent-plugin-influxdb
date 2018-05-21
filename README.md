@@ -116,8 +116,6 @@ The details of BufferedOutput is [here](http://docs.fluentd.org/articles/buffer-
 
 ---
 
-Also please consider using [fluent-plugin-multiprocess](https://github.com/frsyuki/fluent-plugin-multiprocess) to fork multiple threads for your metrics:
-
 ## Contributing
 
 
