@@ -116,17 +116,6 @@ The details of BufferedOutput is [here](http://docs.fluentd.org/articles/buffer-
 
 ---
 
-fluentd-plugin-influxdb also includes the HandleTagNameMixin mixin which allows the following additional options:
-
-```
-remove_tag_prefix <tag_prefix_to_remove_including_the_dot>
-remove_tag_suffix <tag_suffix_to_remove_including_the_dot>
-add_tag_prefix <tag_prefix_to_add_including_the_dot>
-add_tag_suffix <tag_suffix_to_add_including_the_dot>
-```
-
----
-
 Also please consider using [fluent-plugin-multiprocess](https://github.com/frsyuki/fluent-plugin-multiprocess) to fork multiple threads for your metrics:
 
 ## Contributing
