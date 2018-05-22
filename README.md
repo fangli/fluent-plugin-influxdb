@@ -103,31 +103,20 @@ If you set `measurement` parameter, use its value instead of event tag.
 fluentd-plugin-influxdb is a buffered output plugin. So additional buffer configuration would be (with default values):
 
 ```
-buffer_type memory
-buffer_chunk_limit 524288 # 512 * 1024
-buffer_queue_limit 1024
-flush_interval 60
-retry_limit 17
-retry_wait 1.0
-num_threads 1
+<buffer>
+  @type memory
+  chunk_limit_size 524288 # 512 * 1024
+  chunk_limit_records 1024
+  flush_interval 60
+  retry_limit 17
+  retry_wait 1.0
+  num_threads 1
+</buffer>
 ```
 
 The details of BufferedOutput is [here](http://docs.fluentd.org/articles/buffer-plugin-overview).
 
 ---
-
-fluentd-plugin-influxdb also includes the HandleTagNameMixin mixin which allows the following additional options:
-
-```
-remove_tag_prefix <tag_prefix_to_remove_including_the_dot>
-remove_tag_suffix <tag_suffix_to_remove_including_the_dot>
-add_tag_prefix <tag_prefix_to_add_including_the_dot>
-add_tag_suffix <tag_suffix_to_add_including_the_dot>
-```
-
----
-
-Also please consider using [fluent-plugin-multiprocess](https://github.com/frsyuki/fluent-plugin-multiprocess) to fork multiple threads for your metrics:
 
 ## Contributing
 
