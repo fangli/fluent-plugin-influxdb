@@ -45,7 +45,7 @@ DESC
   config_param :tag_keys, :array, default: [],
                desc: "The names of the keys to use as influxDB tags."
   config_param :tag_keys_field, :string, default: nil,
-               desc: "The names of the fields where influxdb key names are stored"
+               desc: "The name of the fields where influxdb key names are stored"
   config_param :sequence_tag, :string, default: nil,
                desc: <<-DESC
 The name of the tag whose value is incremented for the consecutive simultaneous
