@@ -16,12 +16,10 @@ If you are using InfluxDB version 0.8 please specify version 0.1.8 of this plugi
 | >= 1.0.0 | >= v0.14.0 | >= 2.1 |
 |  < 1.0.0 | >= v0.12.0 | >= 1.9 |
 
-NOTE: fluent-plugin-influxdb v1.0.0 is now RC. We will release stable v1.0.0 soon.
-
 ## Installation
 
     $ fluent-gem install fluent-plugin-influxdb -v "~> 0.3"  --no-document # for fluentd v0.12 or later
-    $ fluent-gem install fluent-plugin-influxdb -v 1.0.0.rc1 --no-document # for fluentd v0.14 or later
+    $ fluent-gem install fluent-plugin-influxdb --no-document # for fluentd v0.14 or later
 
 ### Ruby 2.0 or earlier
 
@@ -35,7 +33,7 @@ If you don't have a problem, use ruby 2.1 or later in production.
 
 Just like other regular output plugins, Use type `influxdb` in your fluentd configuration under `match` scope:
 
-`type` `influxdb`
+`@type` `influxdb`
 
 --------------
 
