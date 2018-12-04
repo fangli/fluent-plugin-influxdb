@@ -138,7 +138,13 @@ DESC
           if (@auto_tags && v.is_a?(String)) || @tag_keys.include?(k)
             # If the tag value is not nil, empty, or a space, add the tag
             if v.to_s.strip != ''
-              tags[k] = v
+              # If tag value ends in a \, append a space at the end to avoid formatting error
+              if v.to_s.end_with?("\\")
+                log.info "Value '#{v}' ended in a \\, appending a space to the end of the string"
+                tags[k] = v + " "
+              else
+                tags[k] = v
+              end
             end
           else
             values[k] = v
