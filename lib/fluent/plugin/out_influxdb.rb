@@ -140,7 +140,7 @@ DESC
             if v.to_s.strip != ''
               # If tag value ends in a \, append a space at the end to avoid formatting error
               if v.to_s.end_with?("\\")
-                log.info "Value '#{v}' ended in a \\, appending a space to the end of the string"
+                log.debug "Value '#{v}' ended in a \\, appending a space to the end of the string"
                 tags[k] = v + " "
               else
                 tags[k] = v
