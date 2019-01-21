@@ -159,6 +159,12 @@ DESC
           log.warn "Skip record '#{record}', because InfluxDB requires at least one value in raw"
           next
       end
+      
+      values.each do |key, value|
+        if value.is_a?(Integer)
+          values[key] = Float(value)
+        end
+      end
 
       point = {
         timestamp: timestamp,
