@@ -98,12 +98,13 @@ DESC
     end
   end
 
+  EMPTY_STRING = ''.freeze
   FORMATTED_RESULT_FOR_INVALID_RECORD = ''.freeze
 
   def format(tag, time, record)
-    # TODO: Use tag based chunk separation for more reliability
-    if record.empty? || record.has_value?(nil)
-      log.warn "Skip record '#{record}', because either record has no value or at least a value is 'nil' inside the record. "
+    # nil and '' check should be in influxdb-ruby client...
+    if record.empty? || record.has_value?(nil) || record.has_value?(EMPTY_STRING)
+      log.warn "Skip record '#{record}' in '#{tag}', because either record has no value or at least a value is 'nil' inside the record."
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
       [precision_time(time), record].to_msgpack
