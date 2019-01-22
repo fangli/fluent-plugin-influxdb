@@ -53,7 +53,9 @@ DESC
                desc: "The key of the key in the record that stores the retention policy name"
   config_param :default_retention_policy, :string, default: nil,
                desc: "The name of the default retention policy"
-
+  config_param :cast_number_to_float, :bool, default: false,
+               desc: "Enable/Disable casting number to float"
+  
   config_section :buffer do
     config_set_default :@type, DEFAULT_BUFFER_TYPE
     config_set_default :chunk_keys, ['tag']
@@ -159,6 +161,14 @@ DESC
       if values.empty?
           log.warn "Skip record '#{record}', because InfluxDB requires at least one value in raw"
           next
+      end
+      
+      if @cast_number_to_float
+        values.each do |key, value|
+          if value.is_a?(Integer)
+            values[key] = Float(value)
+          end
+        end
       end
 
       point = {
