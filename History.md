@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.0 (Jan, 21, 2019)
+=====
+
+- Update influxdb-ruby gem dependency to 0.7 and drop ruby 2.2 or earlier support
+
 1.1.0 (Jan, 21, 2019)
 =====
 

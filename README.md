@@ -4,30 +4,24 @@ fluent-plugin-influxdb is a buffered output plugin for fluentd and influxDB.
 
 If you are using fluentd as a collector and want to organize your time-series data in influxDB, this is your right choice!
 
-## NOTE
-
-This version uses influxdb-ruby version 0.2.0 which no longer supports InfluxDB version 0.8 (which is also deprecated).
-If you are using InfluxDB version 0.8 please specify version 0.1.8 of this plugin.
-
 ## Requirements
 
 | fluent-plugin-influxdb | fluentd | ruby |
 |------------------------|---------|------|
+| >= 2.0.0 | >= v1.0.0  | >= 2.3 |
 | >= 1.0.0 | >= v0.14.0 | >= 2.1 |
 |  < 1.0.0 | >= v0.12.0 | >= 1.9 |
 
 ## Installation
 
-    $ fluent-gem install fluent-plugin-influxdb -v "~> 0.3"  --no-document # for fluentd v0.12 or later
-    $ fluent-gem install fluent-plugin-influxdb --no-document # for fluentd v0.14 or later
+    $ fluent-gem install fluent-plugin-influxdb --no-document # for fluentd v1.0 or later
+    $ fluent-gem install fluent-plugin-influxdb -v "~> 1.0" --no-document # for fluentd v1.0  or later and ruby 2.2 or earlier
+    $ fluent-gem install fluent-plugin-influxdb -v "~> 0.3" --no-document # for fluentd v0.12 or later and ruby 2.0 or earlier
 
 ### Ruby 2.0 or earlier
 
 `influxdb` gem requires `cause` gem in Ruby 2.0 or earlier. If you want to use `fluent-plugin-influxdb` with Ruby 2.0 or earlier,
 you should install `cause` gem before install `fluent-plugin-influxdb`.
-
-We don't recommend to use Ruby 2.0 or earlier version because these are EOL.
-If you don't have a problem, use ruby 2.1 or later in production.
 
 ## Usage
 
