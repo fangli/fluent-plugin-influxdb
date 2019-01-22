@@ -190,12 +190,6 @@ class InfluxdbOutputTest < Test::Unit::TestCase
           {
             timestamp: time,
             series: 'input.influxdb',
-            values: {'a' => 1},
-            tags: {},
-          },
-          {
-            timestamp: time,
-            series: 'input.influxdb',
             values: {'a' => 2},
             tags: {'b' => 1},
           },

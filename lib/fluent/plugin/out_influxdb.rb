@@ -106,7 +106,7 @@ DESC
   def format(tag, time, record)
     # nil and '' check should be in influxdb-ruby client...
     if record.empty? || record.has_value?(nil) || record.has_value?(EMPTY_STRING)
-      log.warn "Skip record '#{record}' in '#{tag}', because either record has no value or at least a value is 'nil' inside the record."
+      log.warn "Skip record '#{record}' in '#{tag}', because either record has no value or at least a value is 'nil' or empty string inside the record."
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
       [precision_time(time), record].to_msgpack
