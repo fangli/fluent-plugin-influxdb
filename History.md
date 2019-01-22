@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.0 (Jan, 21, 2019)
+=====
+
+- Skip record which has empty string field
+- Add cast_number_to_float parameter
+
 1.0.0 (Nov, 30, 2017)
 =====
 
