@@ -71,7 +71,7 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `retention_policy_key`: The name of the key in the record whose value specifies the retention policy.  The default retention policy will be applied if no such key exists.  influxdb >= 0.2.3 is required to use this functionality.
 
-`cast_number_to_float`: Enable/Disable casting number to float
+`cast_number_to_float`: Enable/Disable casting number to float. influxdb can't mix integer/float value in one measurement. If your pipeline can't unify record value, this parameter may help. Avoid 'field type conflict' error.
 
 ### Fluentd Tag and InfluxDB Series
 
