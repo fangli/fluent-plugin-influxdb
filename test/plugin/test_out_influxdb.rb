@@ -169,6 +169,35 @@ class InfluxdbOutputTest < Test::Unit::TestCase
     ], driver.instance.influxdb.points)
   end
 
+  def test_empty_tag_keys_field
+    config_with_tags = %Q(
+      #{CONFIG}
+      tag_keys_field b
+    )
+
+    driver = create_driver(config_with_tags)
+
+    time = event_time("2011-01-02 13:14:15 UTC")
+    driver.run(default_tag: 'input.influxdb') do
+      driver.feed(time, {'b' => {'a' => "2"}, 'c' => '2'})
+    end
+
+    assert_equal([
+      [
+        [
+          {
+            timestamp: 1293974055,
+            series: 'input.influxdb',
+            values: {'c' => "2"},
+            tags: {'a' => "2"}
+          },
+        ],
+        nil,
+        nil
+      ]
+    ], driver.instance.influxdb.points)
+  end
+
   def test_empty_tag_keys
     config_with_tags = %Q(
       #{CONFIG}
