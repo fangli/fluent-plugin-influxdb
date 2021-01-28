@@ -105,11 +105,11 @@ DESC
 
   def format(tag, time, record)
     # nil and '' check should be in influxdb-ruby client...
-    if record.empty? || record.has_value?(nil) || record.has_value?(EMPTY_STRING)
-      log.warn "Skip record '#{record}' in '#{tag}', because either record has no value or at least a value is 'nil' or empty string inside the record."
+    if record.empty? || record.has_value?(EMPTY_STRING)
+      log.warn "Skip record '#{record}' in '#{tag}', because either record has no value or empty string inside the record."
       FORMATTED_RESULT_FOR_INVALID_RECORD
     else
-      [precision_time(time), record].to_msgpack
+      [precision_time(time), record.compact].to_msgpack
     end
   end
 
@@ -130,7 +130,7 @@ DESC
     points = []
     tag = chunk.metadata.tag
     chunk.msgpack_each do |time, record|
-      timestamp = record.delete(@time_key) || time
+      timestamp = precision_time(Time.parse(record.delete(@time_key)))
       if tag_keys.empty? && !@auto_tags
         values = record
         tags = {}
@@ -162,7 +162,7 @@ DESC
           log.warn "Skip record '#{record}', because InfluxDB requires at least one value in raw"
           next
       end
-      
+
       if @cast_number_to_float
         values.each do |key, value|
           if value.is_a?(Integer)
@@ -226,7 +226,7 @@ DESC
 
   def precision_time(time)
     # nsec is supported from v0.14
-    nstime = time * (10 ** 9) + (time.is_a?(Integer) ? 0 : time.nsec)
+    nstime = time.to_i * (10 ** 9) + (time.is_a?(Integer) ? 0 : time.nsec)
     @time_precise.call(nstime)
   end
 end
