@@ -138,14 +138,7 @@ DESC
         values = {}
         tags = {}
         record.each_pair do |k, v|
-          if (@auto_tags && v.is_a?(String)) || @tag_keys.include?(k)
-            # If the tag value is not nil, empty, or a space, add the tag
-            if v.to_s.strip != ''
-              tags[k] = v
-            end
-          else
-            values[k] = v
-          end
+          _parse_field(k, v, tags, values)
         end
       end
       if @sequence_tag
@@ -201,6 +194,21 @@ DESC
       else
         @influxdb.write_points(points, nil, @default_retention_policy)
       end
+    end
+  end
+
+  def _parse_field(k, v, tags, values)
+    if (@auto_tags && v.is_a?(String)) || @tag_keys.include?(k)
+      # If the tag value is not nil, empty, or a space, add the tag
+      if v.to_s.strip != ''
+        tags[k] = v
+      end
+    elsif v.is_a?(Hash)
+      v.each_pair do |nested_k, nested_v|
+        _parse_field("#{k}.#{nested_k}", nested_v, tags, values)
+      end
+    else
+      values[k] = v
     end
   end
 
