@@ -45,6 +45,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `password`: The password of the user, default to "root"
 
+`auth_method`: The authentication method, default to "param". You may prefer "basic_auth" to prevent leaking of credentials in request logs.
+
 `retry`: The finite number of retry times. default is infinite
 
 `use_ssl`: Use SSL when connecting to influxDB. default to false
@@ -84,6 +86,7 @@ If you set `measurement` parameter, use its value instead of event tag.
   dbname test
   user  testuser
   password  mypwd
+  auth_method basic_auth
   use_ssl false
   time_precision s
   tag_keys ["key1", "key2"]
