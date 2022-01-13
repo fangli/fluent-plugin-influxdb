@@ -69,6 +69,8 @@ Just like other regular output plugins, Use type `influxdb` in your fluentd conf
 
 `cast_number_to_float`: Enable/Disable casting number to float. influxdb can't mix integer/float value in one measurement. If your pipeline can't unify record value, this parameter may help. Avoid 'field type conflict' error.
 
+`skip_db_check`: Skip testing if `dbname` exists on the database before attempting to write. Setting to "true" is required if your destination is a Telegraf InfluxDB Input plugin.
+
 ### Fluentd Tag and InfluxDB Series
 
 influxdb plugin uses Fluentd event tag for InfluxDB series.

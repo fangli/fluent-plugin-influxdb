@@ -20,6 +20,8 @@ class Fluent::Plugin::InfluxdbOutput < Fluent::Plugin::Output
 The database name of influxDB.
 You should create the database and grant permissions at first.
 DESC
+  config_param :skip_db_check, :string, default: false,
+               desc: "Skip checking if database exists before attempting to write"
   config_param :measurement, :string, default: nil,
                desc: "The measurement name to insert events. If not specified, fluentd's tag is used"
   config_param :user, :string,  default: 'root',
@@ -96,7 +98,7 @@ DESC
     begin
       existing_databases = @influxdb.list_databases.map { |x| x['name'] }
       unless existing_databases.include? @dbname
-        raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',')
+        raise Fluent::ConfigError, 'Database ' + @dbname + ' doesn\'t exist. Create it first, please. Existing databases: ' + existing_databases.join(',') unless @skip_db_check
       end
     rescue InfluxDB::AuthenticationError, InfluxDB::Error
       log.info "skip database presence check because '#{@user}' user doesn't have admin privilege. Check '#{@dbname}' exists on influxdb"
