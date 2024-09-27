@@ -1,5 +1,8 @@
 Changelog
-=========
+
+2.1.0 (Sep, 27, 2024)
+
+- Update influxdb-ruby gem dependency to 0.9 for ruby 3.x support
 
 2.0.0 (Jan, 21, 2019)
 =====
