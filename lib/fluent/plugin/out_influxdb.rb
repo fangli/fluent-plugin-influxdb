@@ -44,6 +44,8 @@ DESC
                desc: "Enable/Disable auto-tagging behaviour which makes strings tags."
   config_param :tag_keys, :array, default: [],
                desc: "The names of the keys to use as influxDB tags."
+  config_param :tag_keys_field, :string, default: nil,
+               desc: "The name of the fields where influxdb key names are stored"
   config_param :sequence_tag, :string, default: nil,
                desc: <<-DESC
 The name of the tag whose value is incremented for the consecutive simultaneous
@@ -147,6 +149,10 @@ DESC
             values[k] = v
           end
         end
+      end
+      if !@tag_keys_field.nil? && record.include?(tag_keys_field)
+        tags.update(record[tag_keys_field])
+        values.delete(tag_keys_field)
       end
       if @sequence_tag
         if @prev_timestamp == timestamp
